@@ -28,8 +28,7 @@ from flask import Flask, render_template
 from syncstar.config import standard
 from syncstar import __versdata__
 from syncstar.auth import checkpoint
-
-from datetime import datetime
+from syncstar.base import list_drives, show_time
 
 
 main = Flask(
@@ -48,10 +47,13 @@ def home() -> str:
     )
 
 
-@main.route("/time/<rqstcode>")
+@main.route("/read/<rqstcode>")
 @checkpoint
-def time(rqstcode) -> str:
-    return datetime.now().strftime("%X %x %Z")
+def read(rqstcode) -> dict:
+    return {
+        "time": show_time(),
+        "devs": list_drives(),
+    }
 
 
 def work() -> None:
