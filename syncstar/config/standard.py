@@ -28,6 +28,8 @@ from logging.config import dictConfig
 
 port = 8080
 
+code = "0000000000000000"
+
 repair = False
 
 logrconf = {

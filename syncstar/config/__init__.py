@@ -22,9 +22,12 @@ be used or replicated with the express permission of Red Hat, Inc.
 
 from syncstar.config import standard
 
+from os import urandom
+
 
 def keep_config(port: int, repair: bool) -> None:
     standard.port = port
+    standard.code = urandom(8).hex().upper()
     standard.repair = repair
     if repair == True:
         standard.logrconf["handlers"]["console"]["level"] = "DEBUG"

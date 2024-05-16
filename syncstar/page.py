@@ -27,6 +27,9 @@ from flask import Flask, render_template
 
 from syncstar.config import standard
 from syncstar import __versdata__
+from syncstar.auth import checkpoint
+
+from datetime import datetime
 
 
 main = Flask(
@@ -41,7 +44,14 @@ def home() -> str:
     return render_template(
         "home.html",
         versdata=__versdata__,
+        rqstcode=standard.code,
     )
+
+
+@main.route("/time/<rqstcode>")
+@checkpoint
+def time(rqstcode) -> str:
+    return datetime.now().strftime("%X %x %Z")
 
 
 def work() -> None:
