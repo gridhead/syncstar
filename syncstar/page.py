@@ -23,7 +23,7 @@ be used or replicated with the express permission of Red Hat, Inc.
 
 import os.path
 
-from flask import Flask, render_template
+from flask import Flask, render_template, abort
 
 from syncstar.config import standard
 from syncstar import __versdata__
@@ -48,9 +48,27 @@ def home() -> str:
     )
 
 
+@main.route("/scan/<rqstcode>/<diskindx>")
+@checkpoint
+def disk(rqstcode: str, diskindx: str) -> dict:
+    if diskindx in standard.dkdict:
+        imdict = standard.imdict
+        for indx in standard.imdict:
+            if standard.imdict[indx]["size"] < standard.dkdict[diskindx]["size"]:
+                imdict[indx]["bool"] = True
+            else:
+                imdict[indx]["bool"] = False
+        return {
+            "disk": standard.dkdict[diskindx],
+            "isos": imdict,
+        }
+    else:
+        abort(404, f"No such disk: {diskindx}")
+
+
 @main.route("/read/<rqstcode>")
 @checkpoint
-def read(rqstcode) -> dict:
+def read(rqstcode: str) -> dict:
     return {
         "time": show_time(),
         "devs": list_drives(),

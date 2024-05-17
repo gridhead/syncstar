@@ -25,11 +25,15 @@ from syncstar.config import standard
 
 from flask import abort
 
+from functools import wraps
+
 
 def checkpoint(path):
-    def authenticate(rqstcode: str = "0000000000000000"):
+    @wraps(path)
+    def authenticate(*args, **kwargs):
+        rqstcode = kwargs.get("rqstcode")
         if rqstcode == standard.code:
-            return path(rqstcode)
+            return path(*args, **kwargs)
         else:
             abort(403)
     return authenticate

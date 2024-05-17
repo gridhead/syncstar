@@ -80,6 +80,10 @@
         font-family: 400;
       }
 
+      body {
+        font-family: "Open Sans", sans-serif;
+      }
+
     </style>
 
   </head>
@@ -114,6 +118,41 @@
       <h2 class="headelem">
         Progress
       </h2>
+
+      <div class="list-group strdelem" id="proglist">
+            <a class="list-group-item p-2" id="disk-${indx}">
+        <div class="d-flex w-100 justify-content-between align-items-start">
+          <h5 class="mb-1 headelem">Sandisk Cruzer Micro</h5>
+          <span class="strdelem badge text-bg-success rounded-pill">42% complete</span>
+        </div>
+        <p class="mb-0">Writing <span style="font-weight: bold">Fedora Workstation 40 Live Image</span>...</p>
+      </a>
+      </div>
+
+
+      <!--
+
+              <div class="card">
+          <div class="card-body strdelem">
+            No USB storage devices detected
+          </div>
+        </div>
+
+      -->
+
+      <!--
+            <a class="list-group-item p-2" id="disk-${indx}">
+        <div class="d-flex w-100 justify-content-between align-items-start">
+          <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
+          <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
+        </div>
+        <p class="mb-0">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB (<code>${disk["name"]["serial"]}</code> on <span style="font-weight: bold">${disk["node"]}</span>)</p>
+        <small></small>
+      </a>
+      -->
+
+
+      <!--
       <ul class="list-group strdelem">
         <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
           A list item
@@ -128,6 +167,7 @@
           <span class="badge text-bg-success rounded-pill">10% complete</span>
         </li>
       </ul>
+      -->
     </div>
 
     <nav class="navbar fixed-bottom bg-body-secondary">
@@ -154,6 +194,45 @@
       </div>
     </div>
 
+    <div class="modal fade" id="quesread" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body">
+            <h2 class="headelem mb-4 text-success" style="text-align: center;">
+              Preparing
+            </h2>
+            <p style="text-align: center;" class="strdelem">
+              You have selected the following USB storage device.
+            </p>
+            <div class="card border-success mb-4">
+              <div class="card-body">
+              <h4 class="card-title headelem text-success" id="disk-prim">0000000000000000</h4>
+              <p class="card-text mb-0" id="disk-seco">00.00 GiB on <span style="font-weight: bold;">/dev/sdx</span></p>
+              <small id="disk-tert">SN 0000000000000000 / ID 00000000</small>
+              </div>
+            </div>
+
+            <p style="text-align: center;" class="strdelem">
+              Choose from the following images for synchronization.
+            </p>
+
+            <div class="list-group strdelem mb-2" id="isoslist">
+              <div class="card">
+                <div class="card-body strdelem">
+                  No images detected
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer justify-content-between" style="text-align: center;">
+            <button type="button" class="btn btn-success strdelem" data-bs-dismiss="modal">Sync</button>
+            <button type="button" class="btn btn-danger strdelem" data-bs-dismiss="modal">Back</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
 
       let disconnected = false;
@@ -162,6 +241,55 @@
         disconnected = true;
         const authrepo = new bootstrap.Modal("#authrepo");
         authrepo.toggle();
+      }
+
+      function invoke_images_select_window ( diskindx ) {
+        if (disconnected === false) {
+          try {
+            let rqstobjc = new XMLHttpRequest();
+            rqstobjc.open("GET", "/scan/{{ rqstcode }}/" + diskindx, false);
+            rqstobjc.send(null);
+            if (rqstobjc.status === 200) {
+              let data = JSON.parse(rqstobjc.responseText);
+              document.getElementById("disk-prim").innerHTML =
+                `${data["disk"]["name"]["vendor"]}&nbsp;${data["disk"]["name"]["handle"]}`;
+              document.getElementById("disk-seco").innerHTML =
+                `<span style="font-weight: bold">${(data["disk"]["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold;">${data["disk"]["node"]}</span>`;
+              document.getElementById("disk-tert").innerHTML =
+                `<span style="font-weight: bold">SN</span> <code>${data["disk"]["name"]["serial"]}</code> / <span style="font-weight: bold">ID</span> <code>${data["disk"]["iden"]}</code>`;
+              if (Object.keys(data.isos).length === 0) {
+                document.getElementById("isoslist").innerHTML =
+                  `
+                  <div class="card">
+                    <div class="card-body strdelem">
+                      No images detected
+                    </div>
+                  </div>
+                  `;
+              } else {
+                document.getElementById("isoslist").innerHTML = "";
+                for (let indx in data.isos) {
+                  let elem = data.isos[indx];
+                  document.getElementById("isoslist").innerHTML +=
+                    `
+                    <a class="list-group-item ${(elem['bool'] === true) ? 'border-success' : 'border-danger'} list-group-item-action p-2" id="isos-${indx}" onclick="">
+                      <div class="d-flex w-100 justify-content-between align-items-start">
+                        <h5 class="mb-1 headelem">${elem["name"]}</h5>
+                        <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-danger'} rounded-pill">${elem["type"]}</span>
+                      </div>
+                      <p class="mb-0">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-danger'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
+                      <small></small>
+                    </a>
+                    `;
+                }
+              }
+            }
+          } catch(expt) {
+            invoke_disconnected_window();
+          }
+        }
+        const quesread = new bootstrap.Modal("#quesread");
+        quesread.toggle();
       }
 
       function retrieve_time() {
@@ -188,13 +316,13 @@
                   let disk = data.devs[indx];
                   document.getElementById("disklist").innerHTML +=
                     `
-                    <a class="list-group-item" id="disk-${indx}">
-                      <div class="d-flex w-100 justify-content-between">
+                    <a class="list-group-item list-group-item-action p-2" id="disk-${indx}" onclick="invoke_images_select_window('${indx}')">
+                      <div class="d-flex w-100 justify-content-between align-items-start">
                         <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
-                        <small class="strdelem">${indx}</small>
+                        <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
                       </div>
-                      <p class="mb-0">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB (${disk["node"]})</p>
-                      <small>${disk["name"]["serial"]}</small>
+                      <p class="mb-0">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB (<code>${disk["name"]["serial"]}</code> on <span style="font-weight: bold">${disk["node"]}</span>)</p>
+                      <small></small>
                     </a>
                     `;
                 }

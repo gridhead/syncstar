@@ -29,6 +29,8 @@ from syncstar import view
 
 from datetime import datetime
 
+from syncstar.config import standard
+
 
 def show_time() -> str:
     return datetime.now().strftime("%X %x %Z")
@@ -58,4 +60,5 @@ def list_drives() -> list:
                     "iden": indx.device_number,
                     "size": retrieve_disk_size(indx.device_node),
                 }
+    standard.dkdict = iterdict
     return iterdict
