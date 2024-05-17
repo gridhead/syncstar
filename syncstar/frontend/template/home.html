@@ -55,7 +55,7 @@
         src: url("{{ url_for('static', filename='font/OpenSans_BDIT.ttf') }}");
       }
       .headelem {
-        font-family: "Barlow Condensed", sans-serif;
+        font-family: "Open Sans", sans-serif;
         font-weight: 700;
       }
       .strdelem {
@@ -77,41 +77,22 @@
     </nav>
 
     <div class="container mt-2">
-      <h1 class="headelem">
+      <h2 class="headelem">
         Pending
-      </h1>
-      <div class="list-group strdelem">
-        <a href="#" class="list-group-item list-group-item-success" aria-current="true">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1 headelem">List group item heading</h5>
-            <small>3 days ago</small>
+      </h2>
+      <div class="list-group strdelem" id="disklist">
+        <div class="card">
+          <div class="card-body strdelem">
+            No USB storage devices detected
           </div>
-          <p class="mb-0">Some placeholder content in a paragraph.</p>
-          <small>And some small print.</small>
-        </a>
-        <a href="#" class="list-group-item list-group-item-action">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1 headelem">List group item heading</h5>
-            <small class="text-body-secondary">3 days ago</small>
-          </div>
-          <p class="mb-0">Some placeholder content in a paragraph.</p>
-          <small class="text-body-secondary">And some muted small print.</small>
-        </a>
-        <a href="#" class="list-group-item list-group-item-action">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1 headelem">List group item heading</h5>
-            <small class="text-body-secondary">3 days ago</small>
-          </div>
-          <p class="mb-0">Some placeholder content in a paragraph.</p>
-          <small class="text-body-secondary">And some muted small print.</small>
-        </a>
+        </div>
       </div>
     </div>
 
     <div class="container mt-2">
-      <h1 class="headelem">
+      <h2 class="headelem">
         Progress
-      </h1>
+      </h2>
       <ul class="list-group strdelem">
         <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
           A list item
@@ -141,10 +122,10 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-body">
-            <h1 class="headelem mb-5 text-danger" style="text-align: center;">
+            <h2 class="headelem mb-4 text-danger" style="text-align: center;">
               Disconnected
-            </h1>
-            <p style="text-align: center;" class="strdelem">
+            </h2>
+            <p style="text-align: center;" class="strdelem mb-0">
               Please refresh your current browser window to reestablish the connection to the service.
             </p>
           </div>
@@ -166,14 +147,40 @@
         if (disconnected === false) {
           try {
             let rqstobjc = new XMLHttpRequest();
-            rqstobjc.open("GET", "/time/{{ rqstcode }}", false);
+            rqstobjc.open("GET", "/read/{{ rqstcode }}", false);
             rqstobjc.send(null);
             if (rqstobjc.status === 200) {
-              document.getElementById("lastupdt").innerText = "Last updated on " + rqstobjc.responseText;
+              let data = JSON.parse(rqstobjc.responseText);
+              document.getElementById("lastupdt").innerText = "Last updated on " + data.time;
+              if (Object.keys(data.devs).length === 0) {
+                document.getElementById("disklist").innerHTML =
+                  `
+                  <div class="card">
+                    <div class="card-body">
+                      No USB storage devices detected
+                    </div>
+                  </div>
+                  `;
+              } else {
+                document.getElementById("disklist").innerHTML = "";
+                for (let indx in data.devs) {
+                  let disk = data.devs[indx];
+                  document.getElementById("disklist").innerHTML +=
+                    `
+                    <a class="list-group-item" id="disk-${indx}">
+                      <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
+                        <small class="strdelem">${indx}</small>
+                      </div>
+                      <p class="mb-0">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB (${disk["node"]})</p>
+                      <small>${disk["name"]["serial"]}</small>
+                    </a>
+                    `;
+                }
+              }
             } else {
               invoke_disconnected_window();
             }
-            console.log(rqstobjc.status)
             return rqstobjc.responseText;
           } catch(expt) {
             invoke_disconnected_window();
