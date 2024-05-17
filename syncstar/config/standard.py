@@ -32,6 +32,12 @@ repair = False
 
 period = 2
 
+images = ""
+
+imdict = {}
+
+dkdict = {}
+
 code = "0000000000000000"
 
 logrconf = {

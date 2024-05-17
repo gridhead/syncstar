@@ -21,7 +21,7 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
-from click import command, option, version_option, IntRange
+from click import command, option, version_option, IntRange, Path
 
 from syncstar import __versdata__
 
@@ -49,7 +49,7 @@ def meet() -> None:
     type=IntRange(min=64, max=65535),
     default=8080,
     required=False,
-    help="Set the port value for the service frontend [64-65536]"
+    help="Set the port value for the service frontend endpoints"
 )
 @option(
     "-r",
@@ -69,10 +69,19 @@ def meet() -> None:
     required=False,
     help="Set the period after which the info will be refreshed"
 )
+@option(
+    "-i",
+    "--images",
+    "images",
+    type=Path(exists=True),
+    default=None,
+    required=True,
+    help="Set the location to where the images config is stored"
+)
 @version_option(
     version=__versdata__, prog_name="SyncStar by Akashdeep Dhar"
 )
-def main(port: int = 8080, repair: bool = False, period: int = 2) -> None:
-    keep_config(port, repair, period)
+def main(port: int = 8080, repair: bool = False, period: int = 2, images: str = None) -> None:
+    keep_config(port, repair, period, images)
     meet()
     work()
