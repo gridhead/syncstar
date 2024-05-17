@@ -1,70 +1,91 @@
 <!doctype html>
+
 <html lang="en">
+
   <head>
+
     <meta charset="utf-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>SyncStar v{{ versdata }}</title>
+
     <link href="{{ url_for('static', filename='css3/bs.min.css') }}" rel="stylesheet" crossorigin="anonymous">
+
     <style>
+
       @font-face {
         font-family: "Barlow Condensed";
         font-weight: 400;
         font-style: normal;
         src: url("{{ url_for('static', filename='font/BarlowCondensed_RLAR.ttf') }}");
       }
+
       @font-face {
         font-family: "Barlow Condensed";
         font-weight: 400;
         font-style: italic;
         src: url("{{ url_for('static', filename='font/BarlowCondensed_RLIT.ttf') }}");
       }
+
       @font-face {
         font-family: "Barlow Condensed";
         font-weight: 700;
         font-style: normal;
         src: url("{{ url_for('static', filename='font/BarlowCondensed_BOLD.ttf') }}");
       }
+
       @font-face {
         font-family: "Open Sans";
         font-weight: 700;
         font-style: italic;
         src: url("{{ url_for('static', filename='font/BarlowCondensed_BDIT.ttf') }}");
       }
+
       @font-face {
         font-family: "Open Sans";
         font-weight: 400;
         font-style: normal;
         src: url("{{ url_for('static', filename='font/OpenSans_RLAR.ttf') }}");
       }
+
       @font-face {
         font-family: "Open Sans";
         font-weight: 400;
         font-style: italic;
         src: url("{{ url_for('static', filename='font/OpenSans_RLIT.ttf') }}");
       }
+
       @font-face {
         font-family: "Open Sans";
         font-weight: 700;
         font-style: normal;
         src: url("{{ url_for('static', filename='font/OpenSans_BOLD.ttf') }}");
       }
+
       @font-face {
         font-family: "Open Sans";
         font-weight: 700;
         font-style: italic;
         src: url("{{ url_for('static', filename='font/OpenSans_BDIT.ttf') }}");
       }
+
       .headelem {
         font-family: "Open Sans", sans-serif;
         font-weight: 700;
       }
+
       .strdelem {
         font-family: "Open Sans", sans-serif;
         font-family: 400;
       }
+
     </style>
+
   </head>
+
   <body onload="activity();">
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
       <div class="container">
         <a class="navbar-brand headelem" href="#">SyncStar</a>
@@ -181,7 +202,6 @@
             } else {
               invoke_disconnected_window();
             }
-            return rqstobjc.responseText;
           } catch(expt) {
             invoke_disconnected_window();
           }
@@ -189,11 +209,13 @@
       }
 
       window.onload = function activity() {
-        setInterval(retrieve_time, 1000);
+        setInterval(retrieve_time, {{ timesecs }} * 1000);
       };
 
     </script>
 
     <script src="{{ url_for('static', filename='jscn/bs.min.js') }}" crossorigin="anonymous"></script>
+
   </body>
+
 </html>

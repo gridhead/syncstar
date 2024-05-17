@@ -35,8 +35,10 @@ from syncstar import view
 
 
 def meet() -> None:
-    view.success(f"Welcome to SyncStar v{__versdata__}!")
-    view.section(f"Use the secret code '{standard.code}' to authenticate with the service")
+    view.success(f"Starting SyncStar v{__versdata__}...")
+    view.warning(f"Use the secret code '{standard.code}' to authenticate with the service")
+    view.warning(f"Information on the frontend would be refreshed every after {standard.period} second(s)")
+    view.warning(f"Debug mode is {'enabled' if standard.repair else 'disabled'}")
 
 
 @command(name="syncstar")
@@ -58,10 +60,19 @@ def meet() -> None:
     required=False,
     help="Show the nerdy statistics to help repair the codebase"
 )
+@option(
+    "-p",
+    "--period",
+    "period",
+    type=IntRange(min=2, max=30),
+    default=2,
+    required=False,
+    help="Set the period after which the info will be refreshed"
+)
 @version_option(
     version=__versdata__, prog_name="SyncStar by Akashdeep Dhar"
 )
-def main(port: int = 8080, repair: bool = False) -> None:
-    keep_config(port, repair)
+def main(port: int = 8080, repair: bool = False, period: int = 2) -> None:
+    keep_config(port, repair, period)
     meet()
     work()

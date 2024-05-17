@@ -28,9 +28,11 @@ from logging.config import dictConfig
 
 port = 8080
 
-code = "0000000000000000"
-
 repair = False
+
+period = 2
+
+code = "0000000000000000"
 
 logrconf = {
     "version": 1,

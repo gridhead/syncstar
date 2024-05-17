@@ -25,10 +25,11 @@ from syncstar.config import standard
 from os import urandom
 
 
-def keep_config(port: int, repair: bool) -> None:
+def keep_config(port: int, repair: bool, period: int) -> None:
     standard.port = port
-    standard.code = urandom(8).hex().upper()
     standard.repair = repair
+    standard.period = period
+    standard.code = urandom(8).hex().upper()
     if repair == True:
         standard.logrconf["handlers"]["console"]["level"] = "DEBUG"
         standard.logrconf["root"]["level"] = "DEBUG"

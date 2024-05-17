@@ -44,6 +44,7 @@ def home() -> str:
         "home.html",
         versdata=__versdata__,
         rqstcode=standard.code,
+        timesecs=standard.period,
     )
 
 
