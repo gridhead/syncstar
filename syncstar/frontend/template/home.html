@@ -118,7 +118,6 @@
       <h2 class="headelem">
         Progress
       </h2>
-
       <div class="list-group strdelem" id="proglist">
             <a class="list-group-item p-2" id="disk-${indx}">
         <div class="d-flex w-100 justify-content-between align-items-start">
@@ -128,46 +127,6 @@
         <p class="mb-0">Writing <span style="font-weight: bold">Fedora Workstation 40 Live Image</span>...</p>
       </a>
       </div>
-
-
-      <!--
-
-              <div class="card">
-          <div class="card-body strdelem">
-            No USB storage devices detected
-          </div>
-        </div>
-
-      -->
-
-      <!--
-            <a class="list-group-item p-2" id="disk-${indx}">
-        <div class="d-flex w-100 justify-content-between align-items-start">
-          <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
-          <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
-        </div>
-        <p class="mb-0">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB (<code>${disk["name"]["serial"]}</code> on <span style="font-weight: bold">${disk["node"]}</span>)</p>
-        <small></small>
-      </a>
-      -->
-
-
-      <!--
-      <ul class="list-group strdelem">
-        <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
-          A list item
-          <span class="badge text-bg-success rounded-pill">14% complete</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          A second list item
-          <span class="badge text-bg-success rounded-pill">20% complete</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          A third list item
-          <span class="badge text-bg-success rounded-pill">10% complete</span>
-        </li>
-      </ul>
-      -->
     </div>
 
     <nav class="navbar fixed-bottom bg-body-secondary">
@@ -180,7 +139,7 @@
     </nav>
 
     <div class="modal fade" id="authrepo" data-bs-backdrop="static">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-body">
             <h2 class="headelem mb-4 text-danger" style="text-align: center;">
@@ -195,7 +154,7 @@
     </div>
 
     <div class="modal fade" id="quesread" data-bs-backdrop="static">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-body">
             <h2 class="headelem mb-4 text-success" style="text-align: center;">
@@ -211,11 +170,9 @@
               <small id="disk-tert">SN 0000000000000000 / ID 00000000</small>
               </div>
             </div>
-
             <p style="text-align: center;" class="strdelem">
               Choose from the following images for synchronization.
             </p>
-
             <div class="list-group strdelem mb-2" id="isoslist">
               <div class="card">
                 <div class="card-body strdelem">
@@ -223,7 +180,6 @@
                 </div>
               </div>
             </div>
-
           </div>
           <div class="modal-footer justify-content-between" style="text-align: center;">
             <button type="button" class="btn btn-success strdelem" data-bs-dismiss="modal">Sync</button>
@@ -236,6 +192,8 @@
     <script>
 
       let disconnected = false;
+
+      let icondict = {{ icondict|tojson }};
 
       function invoke_disconnected_window () {
         disconnected = true;

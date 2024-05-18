@@ -25,7 +25,7 @@ import os.path
 
 from flask import Flask, render_template, abort
 
-from syncstar.config import standard
+from syncstar.config import standard, manifest
 from syncstar import __versdata__
 from syncstar.auth import checkpoint
 from syncstar.base import list_drives, show_time
@@ -45,6 +45,7 @@ def home() -> str:
         versdata=__versdata__,
         rqstcode=standard.code,
         timesecs=standard.period,
+        icondict=manifest.icondict,
     )
 
 
@@ -76,6 +77,7 @@ def read(rqstcode: str) -> dict:
 
 
 def work() -> None:
+    print(os.path.abspath("syncstar/frontend/template"))
     main.run(
         host="0.0.0.0",
         port=standard.port,
