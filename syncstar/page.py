@@ -52,7 +52,7 @@ def home() -> str:
 @main.route("/scan/<rqstcode>/<diskindx>")
 @checkpoint
 def disk(rqstcode: str, diskindx: str) -> dict:
-    if diskindx in standard.dkdict:
+    if diskindx in list_drives():
         imdict = standard.imdict
         for indx in standard.imdict:
             if standard.imdict[indx]["size"] < standard.dkdict[diskindx]["size"]:

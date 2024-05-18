@@ -31,6 +31,8 @@ from datetime import datetime
 
 from syncstar.config import standard
 
+from hashlib import sha256
+
 
 def show_time() -> str:
     return datetime.now().strftime("%X %x %Z")
@@ -45,17 +47,20 @@ def retrieve_disk_size(device: str) -> int:
 
 
 def list_drives() -> list:
+    """
+    List storage devices according to the identification provided by the hexdigest of the SHA256
+    hash of their hardware serial numbers of the respective storage devices
+    """
     ctxtobjc = Context()
     iterdict = {}
     for indx in ctxtobjc.list_devices(subsystem="block", DEVTYPE="disk"):
         if isinstance(indx.get("ID_BUS"), str):
             if "usb" in indx.get("ID_BUS"):
-                iterdict[indx.properties["ID_PART_TABLE_UUID"]] = {
+                iterdict[sha256(indx.properties["ID_SERIAL_SHORT"].encode()).hexdigest()[0:8].upper()] = {
                     "node": indx.device_node,
                     "name": {
                         "vendor": indx.properties["ID_VENDOR"],
                         "handle": indx.properties["ID_MODEL"],
-                        "serial": indx.properties["ID_SERIAL_SHORT"],
                     },
                     "iden": indx.device_number,
                     "size": retrieve_disk_size(indx.device_node),

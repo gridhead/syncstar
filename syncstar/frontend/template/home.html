@@ -153,6 +153,21 @@
       </div>
     </div>
 
+    <div class="modal fade" id="notfound">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body">
+            <h2 class="headelem mb-4 text-warning" style="text-align: center;">
+              Unavailable
+            </h2>
+            <p style="text-align: center;" class="strdelem mb-0">
+              The storage device that you are attempting to access is no longer available.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal fade" id="quesread" data-bs-backdrop="static">
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -163,13 +178,18 @@
             <p style="text-align: center;" class="strdelem">
               You have selected the following USB storage device.
             </p>
-            <div class="card border-success mb-4">
-              <div class="card-body">
-              <h4 class="card-title headelem text-success" id="disk-prim">0000000000000000</h4>
-              <p class="card-text mb-0" id="disk-seco">00.00 GiB on <span style="font-weight: bold;">/dev/sdx</span></p>
-              <small id="disk-tert">SN 0000000000000000 / ID 00000000</small>
-              </div>
+
+            <div class="list-group strdelem mb-3">
+              <a class="list-group-item border-success list-group-item-action p-2">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                  <h5 class="mb-1 headelem" id="disk-prim">0000000000000000</h5>
+                  <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
+                </div>
+                <p class="mb-0" id="disk-seco"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
+                <small></small>
+              </a>
             </div>
+
             <p style="text-align: center;" class="strdelem">
               Choose from the following images for synchronization.
             </p>
@@ -213,8 +233,6 @@
                 `${data["disk"]["name"]["vendor"]}&nbsp;${data["disk"]["name"]["handle"]}`;
               document.getElementById("disk-seco").innerHTML =
                 `<span style="font-weight: bold">${(data["disk"]["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold;">${data["disk"]["node"]}</span>`;
-              document.getElementById("disk-tert").innerHTML =
-                `<span style="font-weight: bold">SN</span> <code>${data["disk"]["name"]["serial"]}</code> / <span style="font-weight: bold">ID</span> <code>${data["disk"]["iden"]}</code>`;
               if (Object.keys(data.isos).length === 0) {
                 document.getElementById("isoslist").innerHTML =
                   `
@@ -241,13 +259,17 @@
                     `;
                 }
               }
+              const quesread = new bootstrap.Modal("#quesread");
+              quesread.toggle();
+            } else if (rqstobjc.status === 404) {
+              const notfound = new bootstrap.Modal("#notfound");
+              notfound.toggle();
+              retrieve_time();
             }
           } catch(expt) {
             invoke_disconnected_window();
           }
         }
-        const quesread = new bootstrap.Modal("#quesread");
-        quesread.toggle();
       }
 
       function retrieve_time() {
@@ -279,7 +301,7 @@
                         <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
                         <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
                       </div>
-                      <p class="mb-0">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB (<code>${disk["name"]["serial"]}</code> on <span style="font-weight: bold">${disk["node"]}</span>)</p>
+                      <p class="mb-0"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
                       <small></small>
                     </a>
                     `;
@@ -295,6 +317,7 @@
       }
 
       window.onload = function activity() {
+        retrieve_time();
         setInterval(retrieve_time, {{ timesecs }} * 1000);
       };
 
