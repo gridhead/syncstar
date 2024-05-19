@@ -77,7 +77,7 @@
 
       .strdelem {
         font-family: "Open Sans", sans-serif;
-        font-family: 400;
+        font-weight: 400;
       }
 
       body {
@@ -153,21 +153,6 @@
       </div>
     </div>
 
-    <div class="modal fade" id="notfound">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-body">
-            <h2 class="headelem mb-4 text-warning" style="text-align: center;">
-              Unavailable
-            </h2>
-            <p style="text-align: center;" class="strdelem mb-0">
-              The storage device that you are attempting to access is no longer available.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="modal fade" id="quesread" data-bs-backdrop="static">
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -178,33 +163,40 @@
             <p style="text-align: center;" class="strdelem">
               You have selected the following USB storage device.
             </p>
-
             <div class="list-group strdelem mb-3">
-              <a class="list-group-item border-success list-group-item-action p-2">
+              <a class="list-group-item border-success p-2">
                 <div class="d-flex w-100 justify-content-between align-items-start">
                   <h5 class="mb-1 headelem" id="disk-prim">0000000000000000</h5>
-                  <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
+                  <span class="strdelem badge text-bg-success rounded-pill" id="diskindx">00000000</span>
                 </div>
                 <p class="mb-0" id="disk-seco"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
                 <small></small>
               </a>
             </div>
-
             <p style="text-align: center;" class="strdelem">
               Choose from the following images for synchronization.
             </p>
-            <div class="list-group strdelem mb-2" id="isoslist">
+            <div class="list-group strdelem mb-3" id="isoslist">
               <div class="card">
                 <div class="card-body strdelem">
                   No images detected
                 </div>
               </div>
             </div>
+            <p style="text-align: center;" class="strdelem mb-1" id="isosname">No images selected</p>
           </div>
           <div class="modal-footer justify-content-between" style="text-align: center;">
-            <button type="button" class="btn btn-success strdelem" data-bs-dismiss="modal">Sync</button>
+            <button type="button" class="btn btn-success strdelem" data-bs-dismiss="modal" onclick="demand_disk_sync();">Sync</button>
             <button type="button" class="btn btn-danger strdelem" data-bs-dismiss="modal">Back</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container p-3 bottom-0 start-50 translate-middle-x" data-original-class="toast-container p-3">
+      <div id="livenotify" class="toast align-items-center text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body" style="text-align: center;" id="livenotify-text">
+          0000000000000000
         </div>
       </div>
     </div>
@@ -214,6 +206,48 @@
       let disconnected = false;
 
       let icondict = {{ icondict|tojson }};
+
+      let isoshash = "";
+
+      let diskhash = "";
+
+      function demand_disk_sync () {
+        console.log(isoshash, diskhash);
+        if (disconnected === false) {
+          try {
+            let rqstobjc = new XMLHttpRequest();
+            rqstobjc.open("GET", `/kick/{{ rqstcode }}/${diskhash}/${isoshash}`, false);
+            rqstobjc.send(null);
+            if (rqstobjc.status === 200) {
+              document.getElementById("livenotify").className = "toast align-items-center text-bg-success border-0";
+              document.getElementById("livenotify-text").innerText = "Task has been successfully scheduled";
+              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+            } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(diskhash) === true) {
+              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+              document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
+              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+            } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(isoshash) === true) {
+              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+              document.getElementById("livenotify-text").innerText = "Requested images archive is no longer available";
+              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+            } else if (rqstobjc.status === 403) {
+              invoke_disconnected_window();
+            }
+          } catch(expt) {
+            invoke_disconnected_window();
+          }
+        }
+      }
+
+      function select_hashes ( hashisos, hashdisk ) {
+        isoshash = hashisos;
+        diskhash = hashdisk;
+        document.getElementById("isosname").innerHTML =
+          `
+          You have selected
+          <h5 class="headelem">${document.getElementById("name-" + hashisos).innerText}</h5>
+          `;
+      }
 
       function invoke_disconnected_window () {
         disconnected = true;
@@ -243,14 +277,15 @@
                   </div>
                   `;
               } else {
+                document.getElementById("diskindx").innerHTML = data.indx;
                 document.getElementById("isoslist").innerHTML = "";
                 for (let indx in data.isos) {
                   let elem = data.isos[indx];
                   document.getElementById("isoslist").innerHTML +=
                     `
-                    <a class="list-group-item ${(elem['bool'] === true) ? 'border-success' : 'border-danger'} list-group-item-action p-2" id="isos-${indx}" onclick="">
+                    <a class="list-group-item ${(elem['bool'] === true) ? 'border-success' : 'border-danger'} list-group-item-action p-2" id="isos-${indx}" onclick="select_hashes('${indx}', '${diskindx}');">
                       <div class="d-flex w-100 justify-content-between align-items-start">
-                        <h5 class="mb-1 headelem">${elem["name"]}</h5>
+                        <h5 class="mb-1 headelem" id="name-${indx}">${elem["name"]}</h5>
                         <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-danger'} rounded-pill">${elem["type"]}</span>
                       </div>
                       <p class="mb-0">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-danger'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
@@ -259,12 +294,21 @@
                     `;
                 }
               }
+              isoshash = ""; diskhash = "";
+              document.getElementById("isosname").innerHTML = "No images selected";
               const quesread = new bootstrap.Modal("#quesread");
               quesread.toggle();
             } else if (rqstobjc.status === 404) {
-              const notfound = new bootstrap.Modal("#notfound");
-              notfound.toggle();
+              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+              document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
+              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
               retrieve_time();
+            } else if (rqstobjc.status === 400) {
+              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+              document.getElementById("livenotify-text").innerText = "Requested storage device cannot be accessed now";
+              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+            } else if (rqstobjc.status === 403) {
+              invoke_disconnected_window();
             }
           } catch(expt) {
             invoke_disconnected_window();
@@ -272,7 +316,7 @@
         }
       }
 
-      function retrieve_time() {
+      function retrieve_time () {
         if (disconnected === false) {
           try {
             let rqstobjc = new XMLHttpRequest();
@@ -316,7 +360,7 @@
         }
       }
 
-      window.onload = function activity() {
+      window.onload = function activity () {
         retrieve_time();
         setInterval(retrieve_time, {{ timesecs }} * 1000);
       };

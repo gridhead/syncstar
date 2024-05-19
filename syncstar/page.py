@@ -38,7 +38,7 @@ main = Flask(
 )
 
 
-@main.route("/")
+@main.route("/", methods=["GET"])
 def home() -> str:
     return render_template(
         "home.html",
@@ -49,25 +49,45 @@ def home() -> str:
     )
 
 
-@main.route("/scan/<rqstcode>/<diskindx>")
+@main.route("/kick/<rqstcode>/<diskindx>/<isosindx>", methods=["GET"])
 @checkpoint
-def disk(rqstcode: str, diskindx: str) -> dict:
+def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
     if diskindx in list_drives():
-        imdict = standard.imdict
-        for indx in standard.imdict:
-            if standard.imdict[indx]["size"] < standard.dkdict[diskindx]["size"]:
-                imdict[indx]["bool"] = True
-            else:
-                imdict[indx]["bool"] = False
-        return {
-            "disk": standard.dkdict[diskindx],
-            "isos": imdict,
-        }
+        if isosindx in standard.imdict:
+            return {
+                "diskindx": diskindx,
+                "isosindx": isosindx,
+            }
+        else:
+            abort(404, f"No such image: {isosindx}")
     else:
         abort(404, f"No such disk: {diskindx}")
 
 
-@main.route("/read/<rqstcode>")
+@main.route("/scan/<rqstcode>/<diskindx>", methods=["GET"])
+@checkpoint
+def disk(rqstcode: str, diskindx: str) -> dict:
+    iterdict = list_drives()
+    if diskindx in iterdict:
+        if not iterdict[diskindx]["lock"]:
+            imdict = standard.imdict
+            for indx in standard.imdict:
+                if standard.imdict[indx]["size"] < standard.dkdict[diskindx]["size"]:
+                    imdict[indx]["bool"] = True
+                else:
+                    imdict[indx]["bool"] = False
+            return {
+                "indx": diskindx,
+                "disk": standard.dkdict[diskindx],
+                "isos": imdict,
+            }
+        else:
+            abort(400, f"Disk locked: {diskindx}")
+    else:
+        abort(404, f"No such disk: {diskindx}")
+
+
+@main.route("/read/<rqstcode>", methods=["GET"])
 @checkpoint
 def read(rqstcode: str) -> dict:
     return {
@@ -77,7 +97,6 @@ def read(rqstcode: str) -> dict:
 
 
 def work() -> None:
-    print(os.path.abspath("syncstar/frontend/template"))
     main.run(
         host="0.0.0.0",
         port=standard.port,
