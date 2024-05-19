@@ -64,6 +64,7 @@ def list_drives() -> list:
                     },
                     "iden": indx.device_number,
                     "size": retrieve_disk_size(indx.device_node),
+                    "lock": False,
                 }
     standard.dkdict = iterdict
     return iterdict

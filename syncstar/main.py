@@ -61,7 +61,7 @@ def meet() -> None:
     help="Show the nerdy statistics to help repair the codebase"
 )
 @option(
-    "-p",
+    "-t",
     "--period",
     "period",
     type=IntRange(min=2, max=30),
