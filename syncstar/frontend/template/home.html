@@ -194,7 +194,7 @@
     </div>
 
     <div class="toast-container p-3 bottom-0 start-50 translate-middle-x" data-original-class="toast-container p-3">
-      <div id="livenotify" class="toast align-items-center text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div id="livenotify" class="toast align-items-center text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true" style="width: fit-content;">
         <div class="toast-body" style="text-align: center;" id="livenotify-text">
           0000000000000000
         </div>
@@ -214,27 +214,41 @@
       function demand_disk_sync () {
         console.log(isoshash, diskhash);
         if (disconnected === false) {
-          try {
-            let rqstobjc = new XMLHttpRequest();
-            rqstobjc.open("GET", `/kick/{{ rqstcode }}/${diskhash}/${isoshash}`, false);
-            rqstobjc.send(null);
-            if (rqstobjc.status === 200) {
-              document.getElementById("livenotify").className = "toast align-items-center text-bg-success border-0";
-              document.getElementById("livenotify-text").innerText = "Task has been successfully scheduled";
-              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-            } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(diskhash) === true) {
-              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-              document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
-              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-            } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(isoshash) === true) {
-              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-              document.getElementById("livenotify-text").innerText = "Requested images archive is no longer available";
-              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-            } else if (rqstobjc.status === 403) {
+          if (isoshash.trim() !== "" || diskhash.trim() !== "") {
+            try {
+              let rqstobjc = new XMLHttpRequest();
+              rqstobjc.open("GET", `/kick/{{ rqstcode }}/${diskhash}/${isoshash}`, false);
+              rqstobjc.send(null);
+              if (rqstobjc.status === 200) {
+                document.getElementById("livenotify").className = "toast align-items-center text-bg-success border-0";
+                document.getElementById("livenotify-text").innerText = "Task has been successfully scheduled";
+                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+              } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(diskhash) === true) {
+                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+                document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
+                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+              } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(isoshash) === true) {
+                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+                document.getElementById("livenotify-text").innerText = "Requested images archive is no longer available";
+                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+              } else if (rqstobjc.status === 400) {
+                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+                document.getElementById("livenotify-text").innerText = "Requested storage device cannot be accessed now";
+                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+              } else if (rqstobjc.status === 422) {
+                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+                document.getElementById("livenotify-text").innerText = "Requested image archive exceeds the capacity";
+                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+              } else if (rqstobjc.status === 403) {
+                invoke_disconnected_window();
+              }
+            } catch (expt) {
               invoke_disconnected_window();
             }
-          } catch(expt) {
-            invoke_disconnected_window();
+          } else {
+            document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+            document.getElementById("livenotify-text").innerText = "Storage devices or images archive were not selected";
+            bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
           }
         }
       }

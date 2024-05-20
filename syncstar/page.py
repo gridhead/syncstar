@@ -52,12 +52,20 @@ def home() -> str:
 @main.route("/kick/<rqstcode>/<diskindx>/<isosindx>", methods=["GET"])
 @checkpoint
 def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
-    if diskindx in list_drives():
+    iterdict = list_drives()
+    if diskindx in iterdict:
         if isosindx in standard.imdict:
-            return {
-                "diskindx": diskindx,
-                "isosindx": isosindx,
-            }
+            if diskindx not in standard.lockls:
+                if standard.imdict[isosindx]["size"] < iterdict[diskindx]["size"]:
+                    standard.lockls.append(diskindx)
+                    return {
+                        "diskindx": diskindx,
+                        "isosindx": isosindx,
+                    }
+                else:
+                    abort(422, f"Insufficient capacity")
+            else:
+                abort(400, f"Disk locked: {diskindx}")
         else:
             abort(404, f"No such image: {isosindx}")
     else:
@@ -66,13 +74,13 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
 
 @main.route("/scan/<rqstcode>/<diskindx>", methods=["GET"])
 @checkpoint
-def disk(rqstcode: str, diskindx: str) -> dict:
+def scan(rqstcode: str, diskindx: str) -> dict:
     iterdict = list_drives()
     if diskindx in iterdict:
-        if not iterdict[diskindx]["lock"]:
+        if diskindx not in standard.lockls:
             imdict = standard.imdict
-            for indx in standard.imdict:
-                if standard.imdict[indx]["size"] < standard.dkdict[diskindx]["size"]:
+            for indx in imdict:
+                if imdict[indx]["size"] < iterdict[diskindx]["size"]:
                     imdict[indx]["bool"] = True
                 else:
                     imdict[indx]["bool"] = False

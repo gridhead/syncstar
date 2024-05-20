@@ -38,6 +38,8 @@ imdict = {}
 
 dkdict = {}
 
+lockls = {}
+
 code = "0000000000000000"
 
 logrconf = {
