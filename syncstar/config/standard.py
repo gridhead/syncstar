@@ -38,7 +38,11 @@ imdict = {}
 
 dkdict = {}
 
-lockls = {}
+hsdict = {}
+
+joblst = {}
+
+lockls = []
 
 code = "0000000000000000"
 

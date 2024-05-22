@@ -90,7 +90,7 @@
 
   <body onload="activity();">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-success">
       <div class="container">
         <a class="navbar-brand headelem" href="#">SyncStar</a>
         <div id="navbar">
@@ -101,7 +101,7 @@
       </div>
     </nav>
 
-    <div class="container mt-2">
+    <div class="container" style="margin-top: 5vh;">
       <h2 class="headelem">
         Pending
       </h2>
@@ -119,13 +119,20 @@
         Progress
       </h2>
       <div class="list-group strdelem" id="proglist">
-            <a class="list-group-item p-2" id="disk-${indx}">
-        <div class="d-flex w-100 justify-content-between align-items-start">
-          <h5 class="mb-1 headelem">Sandisk Cruzer Micro</h5>
-          <span class="strdelem badge text-bg-success rounded-pill">42% complete</span>
+        <div class="card">
+          <div class="card-body strdelem">
+            No running synchronizations detected
+          </div>
         </div>
-        <p class="mb-0">Writing <span style="font-weight: bold">Fedora Workstation 40 Live Image</span>...</p>
-      </a>
+      </div>
+    </div>
+
+    <div class="container mt-2">
+      <h2 class="headelem">
+        Debug
+      </h2>
+      <div id="debplc">
+        Debug information goes here
       </div>
     </div>
 
@@ -219,28 +226,26 @@
               let rqstobjc = new XMLHttpRequest();
               rqstobjc.open("GET", `/kick/{{ rqstcode }}/${diskhash}/${isoshash}`, false);
               rqstobjc.send(null);
-              if (rqstobjc.status === 200) {
-                document.getElementById("livenotify").className = "toast align-items-center text-bg-success border-0";
-                document.getElementById("livenotify-text").innerText = "Task has been successfully scheduled";
-                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-              } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(diskhash) === true) {
-                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-                document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
-                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-              } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(isoshash) === true) {
-                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-                document.getElementById("livenotify-text").innerText = "Requested images archive is no longer available";
-                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-              } else if (rqstobjc.status === 400) {
-                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-                document.getElementById("livenotify-text").innerText = "Requested storage device cannot be accessed now";
-                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-              } else if (rqstobjc.status === 422) {
-                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-                document.getElementById("livenotify-text").innerText = "Requested image archive exceeds the capacity";
-                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-              } else if (rqstobjc.status === 403) {
+              if (rqstobjc.status === 403) {
                 invoke_disconnected_window();
+              } else {
+                if (rqstobjc.status === 200) {
+                  document.getElementById("livenotify-text").innerText = "Task has been successfully scheduled";
+                  document.getElementById("livenotify").className = "toast align-items-center text-bg-success border-0";
+                } else {
+                  if (rqstobjc.status === 404 && rqstobjc.responseText.includes(diskhash) === true) {
+                    document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
+                  } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(isoshash) === true) {
+                    document.getElementById("livenotify-text").innerText = "Requested images archive is no longer available";
+                  } else if (rqstobjc.status === 400) {
+                    document.getElementById("livenotify-text").innerText = "Requested storage device cannot be accessed now";
+                  } else if (rqstobjc.status === 422) {
+                    document.getElementById("livenotify-text").innerText = "Requested image archive exceeds the capacity";
+                  }
+                  document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+                }
+                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+                retrieve_time();
               }
             } catch (expt) {
               invoke_disconnected_window();
@@ -275,54 +280,56 @@
             let rqstobjc = new XMLHttpRequest();
             rqstobjc.open("GET", "/scan/{{ rqstcode }}/" + diskindx, false);
             rqstobjc.send(null);
-            if (rqstobjc.status === 200) {
-              let data = JSON.parse(rqstobjc.responseText);
-              document.getElementById("disk-prim").innerHTML =
-                `${data["disk"]["name"]["vendor"]}&nbsp;${data["disk"]["name"]["handle"]}`;
-              document.getElementById("disk-seco").innerHTML =
-                `<span style="font-weight: bold">${(data["disk"]["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold;">${data["disk"]["node"]}</span>`;
-              if (Object.keys(data.isos).length === 0) {
-                document.getElementById("isoslist").innerHTML =
-                  `
-                  <div class="card">
-                    <div class="card-body strdelem">
-                      No images detected
-                    </div>
-                  </div>
-                  `;
-              } else {
-                document.getElementById("diskindx").innerHTML = data.indx;
-                document.getElementById("isoslist").innerHTML = "";
-                for (let indx in data.isos) {
-                  let elem = data.isos[indx];
-                  document.getElementById("isoslist").innerHTML +=
-                    `
-                    <a class="list-group-item ${(elem['bool'] === true) ? 'border-success' : 'border-danger'} list-group-item-action p-2" id="isos-${indx}" onclick="select_hashes('${indx}', '${diskindx}');">
-                      <div class="d-flex w-100 justify-content-between align-items-start">
-                        <h5 class="mb-1 headelem" id="name-${indx}">${elem["name"]}</h5>
-                        <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-danger'} rounded-pill">${elem["type"]}</span>
-                      </div>
-                      <p class="mb-0">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-danger'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
-                      <small></small>
-                    </a>
-                    `;
-                }
-              }
-              isoshash = ""; diskhash = "";
-              document.getElementById("isosname").innerHTML = "No images selected";
-              const quesread = new bootstrap.Modal("#quesread");
-              quesread.toggle();
-            } else if (rqstobjc.status === 404) {
-              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-              document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
-              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-              retrieve_time();
-            } else if (rqstobjc.status === 400) {
-              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-              document.getElementById("livenotify-text").innerText = "Requested storage device cannot be accessed now";
-              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-            } else if (rqstobjc.status === 403) {
+            if (rqstobjc.status === 403) {
               invoke_disconnected_window();
+            } else {
+              if (rqstobjc.status === 200) {
+                let data = JSON.parse(rqstobjc.responseText);
+                document.getElementById("disk-prim").innerHTML =
+                  `${data["disk"]["name"]["vendor"]}&nbsp;${data["disk"]["name"]["handle"]}`;
+                document.getElementById("disk-seco").innerHTML =
+                  `<span style="font-weight: bold">${(data["disk"]["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold;">${data["disk"]["node"]}</span>`;
+                if (Object.keys(data.isos).length === 0) {
+                  document.getElementById("isoslist").innerHTML =
+                    `
+                    <div class="card">
+                      <div class="card-body strdelem">
+                        No images detected
+                      </div>
+                    </div>
+                    `;
+                } else {
+                  document.getElementById("diskindx").innerHTML = data.indx;
+                  document.getElementById("isoslist").innerHTML = "";
+                  for (let indx in data.isos) {
+                    let elem = data.isos[indx];
+                    document.getElementById("isoslist").innerHTML +=
+                      `
+                      <a class="list-group-item ${(elem['bool'] === true) ? 'border-success' : 'border-warning'} list-group-item-action p-2" id="isos-${indx}" onclick="select_hashes('${indx}', '${diskindx}');">
+                        <div class="d-flex w-100 justify-content-between align-items-start">
+                          <h5 class="mb-1 headelem" id="name-${indx}">${elem["name"]}</h5>
+                          <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-warning'} rounded-pill">${elem["type"]}</span>
+                        </div>
+                        <p class="mb-0">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
+                        <small></small>
+                      </a>
+                      `;
+                  }
+                }
+                isoshash = ""; diskhash = "";
+                document.getElementById("isosname").innerHTML = "No images selected";
+                const quesread = new bootstrap.Modal("#quesread");
+                quesread.toggle();
+              } else {
+                if (rqstobjc.status === 404) {
+                  document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
+                  retrieve_time();
+                } else if (rqstobjc.status === 400) {
+                  document.getElementById("livenotify-text").innerText = "Requested storage device cannot be accessed now";
+                }
+                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+              }
             }
           } catch(expt) {
             invoke_disconnected_window();
@@ -336,9 +343,17 @@
             let rqstobjc = new XMLHttpRequest();
             rqstobjc.open("GET", "/read/{{ rqstcode }}", false);
             rqstobjc.send(null);
+
+            // DEBUG PRINT
+            // console.log(rqstobjc.status, rqstobjc.responseText);
+
             if (rqstobjc.status === 200) {
               let data = JSON.parse(rqstobjc.responseText);
               document.getElementById("lastupdt").innerText = "Last updated on " + data.time;
+
+              // DEBUG PRINT BELOW
+              document.getElementById("debplc").innerText = rqstobjc.responseText;
+
               if (Object.keys(data.devs).length === 0) {
                 document.getElementById("disklist").innerHTML =
                   `
@@ -365,7 +380,40 @@
                     `;
                 }
               }
-            } else {
+              if (Object.keys(data.jobs).length === 0) {
+                document.getElementById("proglist").innerHTML =
+                  `
+                  <div class="card">
+                    <div class="card-body strdelem">
+                      No running synchronizations detected
+                    </div>
+                  </div>
+                  `;
+              } else {
+                document.getElementById("proglist").innerHTML = "";
+                for (let indx in data.jobs) {
+                  let prog = data.jobs[indx];
+                  document.getElementById("proglist").innerHTML +=
+                    `
+                    <a class="list-group-item list-group-item-action p-2" id="prog-${indx}">
+                      <div class="d-flex w-100 justify-content-between align-items-start">
+                        <h5 class="mb-1 headelem">${prog["disk"]}</h5>
+                        <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
+                      </div>
+                      <p class="mb-0">
+                        ${(prog["mood"] === "FAILURE") ? 'Failed synchronizing' : 'Synchronizing'} <span style="font-weight: bold">${prog["isos"]}</span> ${(prog["mood"] === "FAILURE") ? 'after' : 'since'} <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span>
+                      </p>
+                    </a>
+                    `;
+                }
+              }
+            } else if (rqstobjc.status === 500 && rqstobjc.responseText.includes("Storage device removed") === true) {
+              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
+              document.getElementById("livenotify-text").innerText = "Storage device was removed during synchronization";
+              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
+              retrieve_time();
+            }
+            else {
               invoke_disconnected_window();
             }
           } catch(expt) {
