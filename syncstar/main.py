@@ -25,9 +25,9 @@ from click import command, option, version_option, IntRange, Path
 
 from syncstar import __versdata__
 
-from syncstar.config import keep_config
+from syncstar.config import keep_config, isos_config
 
-from syncstar.page import work
+from syncstar.root import work
 
 from syncstar.config import standard
 
@@ -82,6 +82,7 @@ def meet() -> None:
     version=__versdata__, prog_name="SyncStar by Akashdeep Dhar"
 )
 def main(port: int = 8080, repair: bool = False, period: int = 2, images: str = None) -> None:
-    keep_config(port, repair, period, images)
+    keep_config(port, repair, period)
+    isos_config(images)
     meet()
     work()
