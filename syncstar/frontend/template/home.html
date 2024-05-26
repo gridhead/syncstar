@@ -1,47 +1,13 @@
 <!doctype html>
-
 <html lang="en">
 
   <head>
-
     <meta charset="utf-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>SyncStar v{{ versdata }}</title>
-
     <link href="{{ url_for('static', filename='css3/bs.min.css') }}" rel="stylesheet" crossorigin="anonymous">
-
+    <link href="{{ url_for('static', filename='css3/core.css') }}" rel="stylesheet" crossorigin="anonymous">
     <style>
-
-      @font-face {
-        font-family: "Barlow Condensed";
-        font-weight: 400;
-        font-style: normal;
-        src: url("{{ url_for('static', filename='font/BarlowCondensed_RLAR.ttf') }}");
-      }
-
-      @font-face {
-        font-family: "Barlow Condensed";
-        font-weight: 400;
-        font-style: italic;
-        src: url("{{ url_for('static', filename='font/BarlowCondensed_RLIT.ttf') }}");
-      }
-
-      @font-face {
-        font-family: "Barlow Condensed";
-        font-weight: 700;
-        font-style: normal;
-        src: url("{{ url_for('static', filename='font/BarlowCondensed_BOLD.ttf') }}");
-      }
-
-      @font-face {
-        font-family: "Open Sans";
-        font-weight: 700;
-        font-style: italic;
-        src: url("{{ url_for('static', filename='font/BarlowCondensed_BDIT.ttf') }}");
-      }
-
       @font-face {
         font-family: "Open Sans";
         font-weight: 400;
@@ -69,23 +35,7 @@
         font-style: italic;
         src: url("{{ url_for('static', filename='font/OpenSans_BDIT.ttf') }}");
       }
-
-      .headelem {
-        font-family: "Open Sans", sans-serif;
-        font-weight: 700;
-      }
-
-      .strdelem {
-        font-family: "Open Sans", sans-serif;
-        font-weight: 400;
-      }
-
-      body {
-        font-family: "Open Sans", sans-serif;
-      }
-
     </style>
-
   </head>
 
   <body onload="activity();">
@@ -101,7 +51,7 @@
       </div>
     </nav>
 
-    <div class="container" style="margin-top: 5vh;">
+    <div class="container">
       <h2 class="headelem">
         Pending
       </h2>
@@ -114,7 +64,7 @@
       </div>
     </div>
 
-    <div class="container mt-2">
+    <div class="container mt-4">
       <h2 class="headelem">
         Progress
       </h2>
@@ -127,7 +77,7 @@
       </div>
     </div>
 
-    <div class="container mt-2">
+    <div class="container mt-4">
       <h2 class="headelem">
         Debug
       </h2>
@@ -193,7 +143,7 @@
             <p style="text-align: center;" class="strdelem mb-1" id="isosname">No images selected</p>
           </div>
           <div class="modal-footer justify-content-between" style="text-align: center;">
-            <button type="button" class="btn btn-success strdelem" data-bs-dismiss="modal" onclick="demand_disk_sync();">Sync</button>
+            <button type="button" class="btn btn-success strdelem" data-bs-dismiss="modal" onclick="demand_disk_sync(rqstcode);">Sync</button>
             <button type="button" class="btn btn-danger strdelem" data-bs-dismiss="modal">Back</button>
           </div>
         </div>
@@ -208,229 +158,25 @@
       </div>
     </div>
 
+    <script src="{{ url_for('static', filename='jscn/bs.min.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='jscn/core.js') }}" crossorigin="anonymous"></script>
     <script>
-
       let disconnected = false;
-
       let icondict = {{ icondict|tojson }};
-
       let isoshash = "";
-
       let diskhash = "";
-
-      function demand_disk_sync () {
-        console.log(isoshash, diskhash);
-        if (disconnected === false) {
-          if (isoshash.trim() !== "" || diskhash.trim() !== "") {
-            try {
-              let rqstobjc = new XMLHttpRequest();
-              rqstobjc.open("GET", `/kick/{{ rqstcode }}/${diskhash}/${isoshash}`, false);
-              rqstobjc.send(null);
-              if (rqstobjc.status === 403) {
-                invoke_disconnected_window();
-              } else {
-                if (rqstobjc.status === 200) {
-                  document.getElementById("livenotify-text").innerText = "Task has been successfully scheduled";
-                  document.getElementById("livenotify").className = "toast align-items-center text-bg-success border-0";
-                } else {
-                  if (rqstobjc.status === 404 && rqstobjc.responseText.includes(diskhash) === true) {
-                    document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
-                  } else if (rqstobjc.status === 404 && rqstobjc.responseText.includes(isoshash) === true) {
-                    document.getElementById("livenotify-text").innerText = "Requested images archive is no longer available";
-                  } else if (rqstobjc.status === 400) {
-                    document.getElementById("livenotify-text").innerText = "Requested storage device cannot be accessed now";
-                  } else if (rqstobjc.status === 422) {
-                    document.getElementById("livenotify-text").innerText = "Requested image archive exceeds the capacity";
-                  }
-                  document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-                }
-                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-                retrieve_time();
-              }
-            } catch (expt) {
-              invoke_disconnected_window();
-            }
-          } else {
-            document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-            document.getElementById("livenotify-text").innerText = "Storage devices or images archive were not selected";
-            bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-          }
-        }
-      }
-
-      function select_hashes ( hashisos, hashdisk ) {
-        isoshash = hashisos;
-        diskhash = hashdisk;
-        document.getElementById("isosname").innerHTML =
-          `
-          You have selected
-          <h5 class="headelem">${document.getElementById("name-" + hashisos).innerText}</h5>
-          `;
-      }
-
-      function invoke_disconnected_window () {
-        disconnected = true;
-        const authrepo = new bootstrap.Modal("#authrepo");
-        authrepo.toggle();
-      }
-
-      function invoke_images_select_window ( diskindx ) {
-        if (disconnected === false) {
-          try {
-            let rqstobjc = new XMLHttpRequest();
-            rqstobjc.open("GET", "/scan/{{ rqstcode }}/" + diskindx, false);
-            rqstobjc.send(null);
-            if (rqstobjc.status === 403) {
-              invoke_disconnected_window();
-            } else {
-              if (rqstobjc.status === 200) {
-                let data = JSON.parse(rqstobjc.responseText);
-                document.getElementById("disk-prim").innerHTML =
-                  `${data["disk"]["name"]["vendor"]}&nbsp;${data["disk"]["name"]["handle"]}`;
-                document.getElementById("disk-seco").innerHTML =
-                  `<span style="font-weight: bold">${(data["disk"]["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold;">${data["disk"]["node"]}</span>`;
-                if (Object.keys(data.isos).length === 0) {
-                  document.getElementById("isoslist").innerHTML =
-                    `
-                    <div class="card">
-                      <div class="card-body strdelem">
-                        No images detected
-                      </div>
-                    </div>
-                    `;
-                } else {
-                  document.getElementById("diskindx").innerHTML = data.indx;
-                  document.getElementById("isoslist").innerHTML = "";
-                  for (let indx in data.isos) {
-                    let elem = data.isos[indx];
-                    document.getElementById("isoslist").innerHTML +=
-                      `
-                      <a class="list-group-item ${(elem['bool'] === true) ? 'border-success' : 'border-warning'} list-group-item-action p-2" id="isos-${indx}" onclick="select_hashes('${indx}', '${diskindx}');">
-                        <div class="d-flex w-100 justify-content-between align-items-start">
-                          <h5 class="mb-1 headelem" id="name-${indx}">${elem["name"]}</h5>
-                          <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-warning'} rounded-pill">${elem["type"]}</span>
-                        </div>
-                        <p class="mb-0">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
-                        <small></small>
-                      </a>
-                      `;
-                  }
-                }
-                isoshash = ""; diskhash = "";
-                document.getElementById("isosname").innerHTML = "No images selected";
-                const quesread = new bootstrap.Modal("#quesread");
-                quesread.toggle();
-              } else {
-                if (rqstobjc.status === 404) {
-                  document.getElementById("livenotify-text").innerText = "Requested storage device is no longer available";
-                  retrieve_time();
-                } else if (rqstobjc.status === 400) {
-                  document.getElementById("livenotify-text").innerText = "Requested storage device cannot be accessed now";
-                }
-                document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-                bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-              }
-            }
-          } catch(expt) {
-            invoke_disconnected_window();
-          }
-        }
-      }
-
-      function retrieve_time () {
-        if (disconnected === false) {
-          try {
-            let rqstobjc = new XMLHttpRequest();
-            rqstobjc.open("GET", "/read/{{ rqstcode }}", false);
-            rqstobjc.send(null);
-
-            // DEBUG PRINT
-            // console.log(rqstobjc.status, rqstobjc.responseText);
-
-            if (rqstobjc.status === 200) {
-              let data = JSON.parse(rqstobjc.responseText);
-              document.getElementById("lastupdt").innerText = "Last updated on " + data.time;
-
-              // DEBUG PRINT BELOW
-              document.getElementById("debplc").innerText = rqstobjc.responseText;
-
-              if (Object.keys(data.devs).length === 0) {
-                document.getElementById("disklist").innerHTML =
-                  `
-                  <div class="card">
-                    <div class="card-body">
-                      No USB storage devices detected
-                    </div>
-                  </div>
-                  `;
-              } else {
-                document.getElementById("disklist").innerHTML = "";
-                for (let indx in data.devs) {
-                  let disk = data.devs[indx];
-                  document.getElementById("disklist").innerHTML +=
-                    `
-                    <a class="list-group-item list-group-item-action p-2" id="disk-${indx}" onclick="invoke_images_select_window('${indx}')">
-                      <div class="d-flex w-100 justify-content-between align-items-start">
-                        <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
-                        <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
-                      </div>
-                      <p class="mb-0"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
-                      <small></small>
-                    </a>
-                    `;
-                }
-              }
-              if (Object.keys(data.jobs).length === 0) {
-                document.getElementById("proglist").innerHTML =
-                  `
-                  <div class="card">
-                    <div class="card-body strdelem">
-                      No running synchronizations detected
-                    </div>
-                  </div>
-                  `;
-              } else {
-                document.getElementById("proglist").innerHTML = "";
-                for (let indx in data.jobs) {
-                  let prog = data.jobs[indx];
-                  document.getElementById("proglist").innerHTML +=
-                    `
-                    <a class="list-group-item list-group-item-action p-2" id="prog-${indx}">
-                      <div class="d-flex w-100 justify-content-between align-items-start">
-                        <h5 class="mb-1 headelem">${prog["disk"]}</h5>
-                        <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
-                      </div>
-                      <p class="mb-0">
-                        ${(prog["mood"] === "FAILURE") ? 'Failed synchronizing' : 'Synchronizing'} <span style="font-weight: bold">${prog["isos"]}</span> ${(prog["mood"] === "FAILURE") ? 'after' : 'since'} <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span>
-                      </p>
-                    </a>
-                    `;
-                }
-              }
-            } else if (rqstobjc.status === 500 && rqstobjc.responseText.includes("Storage device removed") === true) {
-              document.getElementById("livenotify").className = "toast align-items-center text-bg-warning border-0";
-              document.getElementById("livenotify-text").innerText = "Storage device was removed during synchronization";
-              bootstrap.Toast.getOrCreateInstance(document.getElementById("livenotify")).show();
-              retrieve_time();
-            }
-            else {
-              invoke_disconnected_window();
-            }
-          } catch(expt) {
-            invoke_disconnected_window();
-          }
-        }
-      }
+      let rqstcode = "{{ rqstcode }}";
 
       window.onload = function activity () {
-        retrieve_time();
-        setInterval(retrieve_time, {{ timesecs }} * 1000);
+        retrieve_time(rqstcode);
+        setInterval(
+          function () {
+            retrieve_time(rqstcode);
+          },
+          {{ timesecs }} * 1000
+        );
       };
-
     </script>
 
-    <script src="{{ url_for('static', filename='jscn/bs.min.js') }}" crossorigin="anonymous"></script>
-
   </body>
-
 </html>
