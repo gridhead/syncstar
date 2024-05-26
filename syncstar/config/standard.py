@@ -46,6 +46,9 @@ lockls = []
 
 code = "0000000000000000"
 
+broker_link = "redis://localhost:6379/0"
+result_link = "redis://localhost:6379/0"
+
 logrconf = {
     "version": 1,
     "disable_existing_loggers": False,
