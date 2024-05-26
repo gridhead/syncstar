@@ -70,9 +70,10 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
                         "isos": isosindx,
                         "time": {
                             "strt": time(),
-                            "stop": 0,
+                            "stop": time(),
                         },
-                        "task": unit.id
+                        "task": unit.id,
+                        "perc": 0,
                     }
                     standard.lockls.append(diskindx)
                     return {
@@ -132,7 +133,7 @@ def read(rqstcode: str) -> dict:
             joblst[indx] = {
                 "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
                 "isos": standard.imdict[data["isos"]]["name"],
-                "time": 0,
+                "time": time() - data["time"]["strt"],
                 "mood": unit.state,
                 "done": False,
                 "perc": 0
@@ -142,10 +143,10 @@ def read(rqstcode: str) -> dict:
             joblst[indx] = {
                 "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
                 "isos": standard.imdict[data["isos"]]["name"],
-                "time": 0,
+                "time": data["time"]["stop"] - data["time"]["strt"],
                 "mood": unit.state,
                 "done": False,
-                "perc": 0
+                "perc": data["perc"],
             }
             if data["disk"] in standard.lockls:
                 if unit.state == "FAILURE":
@@ -155,11 +156,13 @@ def read(rqstcode: str) -> dict:
             joblst[indx] = {
                 "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
                 "isos": standard.imdict[data["isos"]]["name"],
-                "time": unit.info.get("time").get("stop", 0) - unit.info.get("time").get("strt", 0),
+                "time": unit.info.get("time").get("stop", 0) - data["time"]["strt"],
                 "mood": unit.state,
                 "done": unit.info.get("finished", True),
                 "perc": unit.info.get("progress", 100)
             }
+            standard.joblst[indx]["perc"] = unit.info.get("progress", 100)
+            standard.joblst[indx]["time"]["stop"] = unit.info.get("time").get("stop", 0)
             if data["disk"] in standard.lockls:
                 if unit.state == "SUCCESS":
                     tounlock[data["disk"]] = True

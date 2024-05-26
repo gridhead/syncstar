@@ -179,10 +179,10 @@ function retrieve_time ( rqstcode ) {
                             <a class="list-group-item list-group-item-action p-2" id="prog-${indx}">
                                 <div class="d-flex w-100 justify-content-between align-items-start">
                                     <h5 class="mb-1 headelem">${prog["disk"]}</h5>
-                                    <span class="strdelem badge ${(prog["mood"] === "WORKING") ? "text-bg-warning" : ""} ${(prog["mood"] === "FAILURE") ? "text-bg-danger" : ""} ${(prog["mood"] === "SUCCESS") ? "text-bg-success" : ""} rounded-pill">${indx}</span>
+                                    <span class="strdelem badge ${(prog["mood"] === "PENDING") ? "text-bg-secondary" : ""} ${(prog["mood"] === "WORKING") ? "text-bg-warning" : ""} ${(prog["mood"] === "FAILURE") ? "text-bg-danger" : ""} ${(prog["mood"] === "SUCCESS") ? "text-bg-success" : ""} rounded-pill">${indx}</span>
                                 </div>
                                 <p class="mb-0">
-                                    ${(prog["mood"] === "FAILURE") ? "Failed" : ""} ${(prog["mood"] === "SUCCESS") ? "Completed" : ""} ${(prog["mood"] === "WORKING") ? "Synchronizing" : "synchronizing"} <span style="font-weight: bold">${prog["isos"]}</span> ${(prog["mood"] === "FAILURE" || prog["mood"] === "SUCCESS") ? "after" : "since"} <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span> (${prog["perc"]}%)
+                                    ${(prog["mood"] === "PENDING") ? "Waiting for" : ""} ${(prog["mood"] === "FAILURE") ? "Failed" : ""} ${(prog["mood"] === "SUCCESS") ? "Completed" : ""} ${(prog["mood"] === "WORKING") ? "Synchronizing" : "synchronizing"} <span style="font-weight: bold">${prog["isos"]}</span> ${(prog["mood"] === "WORKING") ? "since" : "after"} <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span> (${prog["perc"]}%)
                                 </p>
                             </a>
                             `;
