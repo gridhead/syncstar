@@ -31,10 +31,10 @@ from syncstar.config import standard, manifest
 from syncstar import __versdata__
 from syncstar.auth import checkpoint
 from syncstar.base import list_drives, show_time
-from syncstar.make import sync_drives
-from syncstar import view
+from syncstar import task
 
 from time import time
+
 
 
 main = Flask(
@@ -64,18 +64,21 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
             if diskindx not in standard.lockls:
                 if standard.imdict[isosindx]["size"] < iterdict[diskindx]["size"]:
                     iden = urandom(4).hex().upper()
+                    unit = task.wrap_diskdrop.apply_async(args=[diskindx, isosindx])
                     standard.joblst[iden] = {
                         "disk": diskindx,
                         "isos": isosindx,
-                        "mood": "WAITING",
                         "time": {
                             "strt": time(),
-                            "stop": 0,
+                            "stop": time(),
                         },
+                        "task": unit.id,
+                        "rcrd": 0,
                     }
-                    print("JOB START", standard.joblst[iden]["time"]["strt"])
                     standard.lockls.append(diskindx)
-                    return sync_drives(diskindx, isosindx)
+                    return {
+                        "location": unit.id,
+                    }
                 else:
                     abort(422, f"Insufficient capacity")
             else:
@@ -115,60 +118,68 @@ def read(rqstcode: str) -> dict:
     joblst = {}
     diskdict = list_drives()
 
-    # Populate a dictionary of all the storage devices regardless of they are connected currently or were connected in the past
+    # Populate a dictionary of all the storage devices regardless of
+    # they are connected currently or were connected in the past
     for jndx in diskdict:
         standard.hsdict[jndx] = diskdict[jndx]
 
-    disk_detect = True
+    tounlock = {}
 
     for indx in standard.joblst.keys():
-        # TODO - Add more conditions
-
-        jobsindx = standard.joblst[indx]
-
-        if (
-            # Images archive is being currently synchronized to the storage device
-            # STATE is not FAILURE, STORAGE DEVICE is CONNECTED and STORAGE DEVICE is LOCKED
-            jobsindx["mood"] != "FAILURE" and jobsindx["disk"] in diskdict and jobsindx["disk"] in standard.lockls
-        ) or (
-            # Storage device being plugged in after the images archive failed to synchronize ONE TIMES to the storage device due to the storage device being removed during the process
-            # STATE is FAILURE, STORAGE DEVICE is not CONNECTED and STORAGE DEVICE is not LOCKED
-            jobsindx["mood"] == "FAILURE" and jobsindx["disk"] not in diskdict and jobsindx["disk"] not in standard.lockls
-        ) or (
-            # Storage device being plugged in after the images archive failed to synchronize TWO TIMES to the storage device due to the storage device being removed during the process
-            # STATE is FAILURE and STORAGE DEVICE is CONNECTED
-            jobsindx["mood"] == "FAILURE" and jobsindx["disk"] in diskdict
-        ):
+        data = standard.joblst[indx]
+        unit = task.wrap_diskdrop.AsyncResult(str(data["task"]).encode())
+        if unit.state == "PENDING":
+            # Conditions - PENDING
             joblst[indx] = {
-                "disk": f"{standard.hsdict[jobsindx['disk']]['name']['vendor']} {standard.hsdict[jobsindx['disk']]['name']['handle']}",
-                "isos": standard.imdict[jobsindx["isos"]]["name"],
-                "time": (standard.joblst[indx]["time"]["stop"] - standard.joblst[indx]["time"]["strt"]) if standard.joblst[indx]["mood"] == "FAILURE" else (time() - standard.joblst[indx]["time"]["strt"]),
-                "mood": jobsindx["mood"],
+                "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
+                "isos": standard.imdict[data["isos"]]["name"],
+                "time": time() - data["time"]["strt"],
+                "mood": unit.state,
+                "done": False,
+                "rcrd": 0
             }
-
-            # Set flags for whenever the operational storage devices are detected properly
-            disk_detect = True
-
+            if data["disk"] in standard.lockls:
+                tounlock[data["disk"]] = False
+        elif unit.state == "FAILURE":
+            # Conditions - FAILURE
+            joblst[indx] = {
+                "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
+                "isos": standard.imdict[data["isos"]]["name"],
+                "time": data["time"]["stop"] - data["time"]["strt"],
+                "mood": unit.state,
+                "done": False,
+                "rcrd": data["rcrd"],
+            }
+            if data["disk"] in standard.lockls:
+                tounlock[data["disk"]] = True
         else:
-            if jobsindx["mood"] != "FAILURE":
-                # Placeholder condition above - Gotta get the parent conditions right and then I can remove this placeholder condition
-                jobsindx["mood"] = "FAILURE"
-                jobsindx["time"]["stop"] = time()
-                if jobsindx["disk"] in standard.lockls:
-                    standard.lockls.remove(jobsindx["disk"])
+            # Conditions - SUCCESS and WORKING
+            joblst[indx] = {
+                "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
+                "isos": standard.imdict[data["isos"]]["name"],
+                "time": unit.info.get("time").get("stop", 0) - data["time"]["strt"],
+                "mood": unit.state,
+                "done": unit.info.get("finished", True),
+                "rcrd": unit.info.get("progress", 0)
+            }
+            standard.joblst[indx]["rcrd"] = unit.info.get("progress", 0)
+            standard.joblst[indx]["time"]["stop"] = unit.info.get("time").get("stop", 0)
+            if data["disk"] in standard.lockls:
+                if unit.state == "WORKING":
+                    tounlock[data["disk"]] = False
+                elif unit.state == "SUCCESS":
+                    tounlock[data["disk"]] = True
 
-            # Set flags for whenever the operational storage devices are not detected properly
-            disk_detect = False
+    # Set flags for whenever the operational storage devices are removed during synchronization
+    for indx in tounlock.keys():
+        if tounlock[indx] and indx in standard.lockls:
+            standard.lockls.remove(indx)
 
-    if disk_detect:
-        return {
-            "time": show_time(),
-            "devs": diskdict,
-            "jobs": joblst,
-        }
-    else:
-        view.failure("Storage device was removed during synchronization")
-        abort(500, f"Storage device removed")
+    return {
+        "time": show_time(),
+        "devs": diskdict,
+        "jobs": joblst,
+    }
 
 
 def work() -> None:

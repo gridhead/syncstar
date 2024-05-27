@@ -33,7 +33,7 @@ from yaml import safe_load, YAMLError
 from syncstar import view
 
 
-def keep_config(port: int, repair: bool, period: int, images: str) -> None:
+def keep_config(port: int, repair: bool, period: int) -> None:
     # Generate a secret code for the frontend to authenticate with the service
     standard.code = urandom(8).hex().upper()
 
@@ -45,6 +45,8 @@ def keep_config(port: int, repair: bool, period: int, images: str) -> None:
         standard.logrconf["handlers"]["console"]["level"] = "DEBUG"
         standard.logrconf["root"]["level"] = "DEBUG"
 
+
+def isos_config(images: str) -> None:
     # Check the validity of the images configuration file before saving the contents
     with open(images, "r") as yamlfile:
         try:
