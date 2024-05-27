@@ -182,7 +182,7 @@ function retrieve_time ( rqstcode ) {
                                     <span class="strdelem badge ${(prog["mood"] === "PENDING") ? "text-bg-secondary" : ""} ${(prog["mood"] === "WORKING") ? "text-bg-warning" : ""} ${(prog["mood"] === "FAILURE") ? "text-bg-danger" : ""} ${(prog["mood"] === "SUCCESS") ? "text-bg-success" : ""} rounded-pill">${indx}</span>
                                 </div>
                                 <p class="mb-0">
-                                    ${(prog["mood"] === "PENDING") ? "Waiting for" : ""} ${(prog["mood"] === "FAILURE") ? "Failed" : ""} ${(prog["mood"] === "SUCCESS") ? "Completed" : ""} ${(prog["mood"] === "WORKING") ? "Synchronizing" : "synchronizing"} <span style="font-weight: bold">${prog["isos"]}</span> ${(prog["mood"] === "WORKING") ? "since" : "after"} <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span> (${prog["perc"]}%)
+                                    ${(prog["mood"] === "PENDING") ? "Waiting for" : ""} ${(prog["mood"] === "FAILURE") ? "Failed" : ""} ${(prog["mood"] === "SUCCESS") ? "Completed" : ""} ${(prog["mood"] === "WORKING") ? "Synchronizing" : "synchronizing"} <span style="font-weight: bold">${prog["isos"]}</span> ${(prog["mood"] === "WORKING") ? "since" : "after"} <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span> (${prog["rcrd"]} records written)
                                 </p>
                             </a>
                             `;

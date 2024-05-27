@@ -64,7 +64,7 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
             if diskindx not in standard.lockls:
                 if standard.imdict[isosindx]["size"] < iterdict[diskindx]["size"]:
                     iden = urandom(4).hex().upper()
-                    unit = task.sync_drives.apply_async(args=[diskindx, isosindx])
+                    unit = task.wrap_diskdrop.apply_async(args=[diskindx, isosindx])
                     standard.joblst[iden] = {
                         "disk": diskindx,
                         "isos": isosindx,
@@ -73,7 +73,7 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
                             "stop": time(),
                         },
                         "task": unit.id,
-                        "perc": 0,
+                        "rcrd": 0,
                     }
                     standard.lockls.append(diskindx)
                     return {
@@ -127,7 +127,7 @@ def read(rqstcode: str) -> dict:
 
     for indx in standard.joblst.keys():
         data = standard.joblst[indx]
-        unit = task.sync_drives.AsyncResult(str(data["task"]).encode())
+        unit = task.wrap_diskdrop.AsyncResult(str(data["task"]).encode())
         if unit.state == "PENDING":
             # Conditions - PENDING
             joblst[indx] = {
@@ -136,8 +136,10 @@ def read(rqstcode: str) -> dict:
                 "time": time() - data["time"]["strt"],
                 "mood": unit.state,
                 "done": False,
-                "perc": 0
+                "rcrd": 0
             }
+            if data["disk"] in standard.lockls:
+                tounlock[data["disk"]] = False
         elif unit.state == "FAILURE":
             # Conditions - FAILURE
             joblst[indx] = {
@@ -146,11 +148,10 @@ def read(rqstcode: str) -> dict:
                 "time": data["time"]["stop"] - data["time"]["strt"],
                 "mood": unit.state,
                 "done": False,
-                "perc": data["perc"],
+                "rcrd": data["rcrd"],
             }
             if data["disk"] in standard.lockls:
-                if unit.state == "FAILURE":
-                    tounlock[data["disk"]] = True
+                tounlock[data["disk"]] = True
         else:
             # Conditions - SUCCESS and WORKING
             joblst[indx] = {
@@ -159,15 +160,15 @@ def read(rqstcode: str) -> dict:
                 "time": unit.info.get("time").get("stop", 0) - data["time"]["strt"],
                 "mood": unit.state,
                 "done": unit.info.get("finished", True),
-                "perc": unit.info.get("progress", 100)
+                "rcrd": unit.info.get("progress", 0)
             }
-            standard.joblst[indx]["perc"] = unit.info.get("progress", 100)
+            standard.joblst[indx]["rcrd"] = unit.info.get("progress", 0)
             standard.joblst[indx]["time"]["stop"] = unit.info.get("time").get("stop", 0)
             if data["disk"] in standard.lockls:
-                if unit.state == "SUCCESS":
-                    tounlock[data["disk"]] = True
-                elif unit.state == "WORKING":
+                if unit.state == "WORKING":
                     tounlock[data["disk"]] = False
+                elif unit.state == "SUCCESS":
+                    tounlock[data["disk"]] = True
 
     # Set flags for whenever the operational storage devices are removed during synchronization
     for indx in tounlock.keys():

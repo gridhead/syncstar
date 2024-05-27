@@ -20,6 +20,7 @@ documentation are not subject to the GNU General Public License and may only
 be used or replicated with the express permission of Red Hat, Inc.
 """
 
+
 from celery.exceptions import Ignore
 
 import traceback
@@ -40,44 +41,51 @@ from celery import Celery, states
 
 from syncstar.config import isos_config
 
+import subprocess, signal
+
+from os.path import getsize
+
+from os import environ as envr
+
 
 taskmgmt = Celery("SyncStar", broker=standard.broker_link, result_backend=standard.result_link)
 
 
 @taskmgmt.task(bind=True)
-def sync_drives(self, diskindx: str, isosindx: str) -> dict:
-    """
-    with open(standard.imdict[isosindx]["path"], "rb") as isosfile:
-        with open(list_drives()[diskindx]["node"], "wb") as diskfile:
-            size = path.getsize(standard.imdict[isosindx]["path"])
-            offs = 0
-            view.warning(f"Synchronizing '{isosfile}' to '{diskindx}'...")
-            while offs < size:
-                sent = sendfile(diskfile.fileno(), isosfile.fileno(), offs, size - offs)
-                if sent == 0:
-                    break
-                offs += sent
-                view.general(f"Synchronizing {sent} bytes out of {size} bytes...")
-            standard.lockls[diskindx]["time"]["stop"] = time()
-    """
-    # sleep(5)
-    # standard.lockls.remove(diskindx)
-    isos_config("/home/archdesk/Projects/syncstar/syncstar/config/images.yml")
-    strttime = time()
-    for indx in range(100):
+def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
+    isos_config(envr["SYNCSTAR_ISOSYAML"])
+    isosfile = standard.imdict[isosindx]["path"]
+    diskfile = list_drives()[diskindx]["node"]
+
+    # FOR DEBUGGING PURPOSES
+    # Uncomment one of the following lines
+    # diskfile = "/home/archdesk/tempdeletethisshit.img"
+    # diskfile = "/dev/null"
+
+    comd = ["dd", f"if={isosfile}", f"of={diskfile}", "status=progress"]
+    proc = subprocess.Popen(comd, stderr=subprocess.PIPE)
+    strt = time()
+    done = 0
+
+    while proc.poll() is None:
+        sleep(1)
+        proc.send_signal(signal.SIGUSR1)
         if diskindx in list_drives().keys():
-            self.update_state(
-                state="WORKING",
-                meta={
-                    "progress": indx,
-                    "complete": 100,
-                    "time": {
-                        "strt": strttime,
-                        "stop": time()
-                    },
-                    "finished": False,
-                }
-            )
+            text = proc.stderr.readline().decode()
+            if "records out" in text:
+                done = text.split(" ")[0].split("+")[0]
+                print(text)
+                self.update_state(
+                    state="WORKING",
+                    meta={
+                        "progress": done,
+                        "time": {
+                            "strt": strt,
+                            "stop": time()
+                        },
+                        "finished": False,
+                    }
+                )
         else:
             print("DEVICE REMOVED")
             self.update_state(
@@ -85,24 +93,22 @@ def sync_drives(self, diskindx: str, isosindx: str) -> dict:
                 meta={
                     "exc_type": "Key",
                     "exc_message": traceback.format_exc().split("\n"),
-                    "result": "Stuff",
-                    "progress": 0,
-                    "complete": 100,
+                    "progress": done,
                     "time": {
-                        "strt": strttime,
+                        "strt": strt,
                         "stop": time()
                     },
-                    "finished": False,
+                    "finished": False
                 }
             )
+            proc.send_signal(signal.SIGTERM)
             raise Ignore()
-        sleep(0.25)
+
     return {
-        "progress": 100,
-        "complete": 100,
+        "progress": done,
         "time": {
-            "strt": strttime,
-            "stop": time()
+            "strt": strt,
+            "stop": time(),
         },
         "finished": True,
     }
