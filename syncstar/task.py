@@ -21,34 +21,24 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
+import signal
+import subprocess
+import traceback
+from os import environ as envr
+from time import sleep, time
+
+from celery import Celery
 from celery.exceptions import Ignore
 
-import traceback
-
-from syncstar.config import view
-
-from syncstar.config import standard
-
+from syncstar import __projname__
 from syncstar.base import list_drives
+from syncstar.config import isos_config, standard
 
-from os import path, sendfile
-
-import random
-
-from time import time, sleep
-
-from celery import Celery, states
-
-from syncstar.config import isos_config
-
-import subprocess, signal
-
-from os.path import getsize
-
-from os import environ as envr
-
-
-taskmgmt = Celery("SyncStar", broker=standard.broker_link, result_backend=standard.result_link)
+taskmgmt = Celery(
+    __projname__,
+    broker=standard.broker_link,
+    result_backend=standard.result_link
+)
 
 
 @taskmgmt.task(bind=True)
@@ -63,7 +53,7 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
     # diskfile = "/dev/null"
 
     comd = ["dd", f"if={isosfile}", f"of={diskfile}", "status=progress"]
-    proc = subprocess.Popen(comd, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(comd, stderr=subprocess.PIPE)  # noqa : S603
     strt = time()
     done = 0
 

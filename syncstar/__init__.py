@@ -21,6 +21,8 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
-from importlib import metadata
+from importlib.metadata import metadata
 
-__versdata__ = metadata.version("syncstar")
+__metadict__ = metadata("syncstar").json
+__versdata__ = __metadict__.get("version")
+__projname__ = __metadict__.get("name")

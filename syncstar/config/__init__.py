@@ -20,17 +20,14 @@ documentation are not subject to the GNU General Public License and may only
 be used or replicated with the express permission of Red Hat, Inc.
 """
 
+
+from os import path, urandom
 from sys import exit
 
-import os.path
-
-from syncstar.config import standard
-
-from os import urandom
-
-from yaml import safe_load, YAMLError
+from yaml import YAMLError, safe_load
 
 from syncstar import view
+from syncstar.config import standard
 
 
 def keep_config(port: int, repair: bool, period: int) -> None:
@@ -41,31 +38,35 @@ def keep_config(port: int, repair: bool, period: int) -> None:
     standard.port = port
     standard.repair = repair
     standard.period = period
-    if repair == True:
+    if repair:
         standard.logrconf["handlers"]["console"]["level"] = "DEBUG"
         standard.logrconf["root"]["level"] = "DEBUG"
 
 
 def isos_config(images: str) -> None:
     # Check the validity of the images configuration file before saving the contents
-    with open(images, "r") as yamlfile:
-        try:
-            imdict = safe_load(yamlfile)
-            if imdict is not None:
-                for indx in imdict:
-                    if os.path.exists(imdict[indx]["path"]):
-                        view.general(f"Checking image file for '{imdict[indx]['name']}'...")
-                        imdict[indx]["size"] = os.path.getsize(imdict[indx]["path"])
-                        continue
-                    else:
-                        view.failure(f"Images file for '{imdict[indx]['name']}' was not found")
-                        exit(1)
-                standard.images = images
-                standard.imdict = imdict
-                print(standard.imdict)
-            else:
+    if path.exists(images):
+        with open(images) as yamlfile:
+            try:
+                imdict = safe_load(yamlfile)
+                if imdict is not None:
+                    for indx in imdict:
+                        if path.exists(imdict[indx]["path"]):
+                            view.general(f"Checking image file for '{imdict[indx]['name']}'...")
+                            imdict[indx]["size"] = path.getsize(imdict[indx]["path"])
+                            continue
+                        else:
+                            view.failure(f"Images file for '{imdict[indx]['name']}' was not found")
+                            exit(1)
+                    standard.images = images
+                    standard.imdict = imdict
+                    print(standard.imdict)
+                else:
+                    view.failure("Invalid images configuration file detected")
+                    exit(1)
+            except YAMLError:
                 view.failure("Invalid images configuration file detected")
                 exit(1)
-        except YAMLError as expt:
-            view.failure("Invalid images configuration file detected")
-            exit(1)
+    else:
+        view.failure("Images configuration file not detected")
+        exit(1)

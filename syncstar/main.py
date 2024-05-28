@@ -21,24 +21,26 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
-from click import command, option, version_option, IntRange, Path
+from click import IntRange, Path, command, option, version_option
 
-from syncstar import __versdata__
-
-from syncstar.config import keep_config, isos_config
-
+from syncstar import __versdata__, view
+from syncstar.config import isos_config, keep_config, standard
 from syncstar.root import work
-
-from syncstar.config import standard
-
-from syncstar import view
 
 
 def meet() -> None:
-    view.success(f"Starting SyncStar v{__versdata__}...")
-    view.warning(f"Use the secret code '{standard.code}' to authenticate with the service")
-    view.warning(f"Information on the frontend would be refreshed every after {standard.period} second(s)")
-    view.warning(f"Debug mode is {'enabled' if standard.repair else 'disabled'}")
+    view.success(
+        f"Starting SyncStar v{__versdata__}..."
+    )
+    view.warning(
+        f"Use the secret code '{standard.code}' to authenticate with the service"
+    )
+    view.warning(
+        f"Information on the frontend would be refreshed every after {standard.period} second(s)"
+    )
+    view.warning(
+        f"Debug mode is {'enabled' if standard.repair else 'disabled'}"
+    )
 
 
 @command(name="syncstar")

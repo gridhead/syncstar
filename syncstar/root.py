@@ -22,23 +22,18 @@ be used or replicated with the express permission of Red Hat, Inc.
 
 
 import os.path
-
 from os import urandom
-
-from flask import Flask, render_template, abort
-
-from syncstar.config import standard, manifest
-from syncstar import __versdata__
-from syncstar.auth import checkpoint
-from syncstar.base import list_drives, show_time
-from syncstar import task
-
 from time import time
 
+from flask import Flask, abort, render_template
 
+from syncstar import __projname__, __versdata__, task
+from syncstar.auth import checkpoint
+from syncstar.base import list_drives, show_time
+from syncstar.config import manifest, standard
 
 main = Flask(
-    import_name="SyncStar",
+    import_name=__projname__,
     template_folder=os.path.abspath("syncstar/frontend/template"),
     static_folder=os.path.abspath("syncstar/frontend/static")
 )
@@ -80,7 +75,7 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
                         "location": unit.id,
                     }
                 else:
-                    abort(422, f"Insufficient capacity")
+                    abort(422, "Insufficient capacity")
             else:
                 abort(400, f"Disk locked: {diskindx}")
         else:
@@ -128,40 +123,30 @@ def read(rqstcode: str) -> dict:
     for indx in standard.joblst.keys():
         data = standard.joblst[indx]
         unit = task.wrap_diskdrop.AsyncResult(str(data["task"]).encode())
+        joblst[indx] = {
+            "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",  # noqa : E501
+            "isos": standard.imdict[data["isos"]]["name"],
+            "mood": unit.state
+        }
         if unit.state == "PENDING":
             # Conditions - PENDING
-            joblst[indx] = {
-                "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
-                "isos": standard.imdict[data["isos"]]["name"],
-                "time": time() - data["time"]["strt"],
-                "mood": unit.state,
-                "done": False,
-                "rcrd": 0
-            }
+            joblst[indx]["time"] = time() - data["time"]["strt"]
+            joblst[indx]["done"] = False
+            joblst[indx]["rcrd"] = 0
             if data["disk"] in standard.lockls:
                 tounlock[data["disk"]] = False
         elif unit.state == "FAILURE":
             # Conditions - FAILURE
-            joblst[indx] = {
-                "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
-                "isos": standard.imdict[data["isos"]]["name"],
-                "time": data["time"]["stop"] - data["time"]["strt"],
-                "mood": unit.state,
-                "done": False,
-                "rcrd": data["rcrd"],
-            }
+            joblst[indx]["time"] = data["time"]["stop"] - data["time"]["strt"]
+            joblst[indx]["done"] = False
+            joblst[indx]["rcrd"] = data["rcrd"]
             if data["disk"] in standard.lockls:
                 tounlock[data["disk"]] = True
         else:
             # Conditions - SUCCESS and WORKING
-            joblst[indx] = {
-                "disk": f"{standard.hsdict[data['disk']]['name']['vendor']} {standard.hsdict[data['disk']]['name']['handle']}",
-                "isos": standard.imdict[data["isos"]]["name"],
-                "time": unit.info.get("time").get("stop", 0) - data["time"]["strt"],
-                "mood": unit.state,
-                "done": unit.info.get("finished", True),
-                "rcrd": unit.info.get("progress", 0)
-            }
+            joblst[indx]["time"] = unit.info.get("time").get("stop", 0) - data["time"]["strt"]
+            joblst[indx]["done"] = unit.info.get("finished", True)
+            joblst[indx]["rcrd"] = unit.info.get("progress", 0)
             standard.joblst[indx]["rcrd"] = unit.info.get("progress", 0)
             standard.joblst[indx]["time"]["stop"] = unit.info.get("time").get("stop", 0)
             if data["disk"] in standard.lockls:
@@ -184,15 +169,7 @@ def read(rqstcode: str) -> dict:
 
 def work() -> None:
     main.run(
-        host="0.0.0.0",
+        host="0.0.0.0",  # noqa : S104
         port=standard.port,
         debug=standard.repair
     )
-
-
-"""
-WAITING
-RUNNING
-SUCCESS
-FAILURE
-"""

@@ -21,11 +21,11 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
-from syncstar.config import standard
+from functools import wraps
 
 from flask import abort
 
-from functools import wraps
+from syncstar.config import standard
 
 
 def checkpoint(path):
