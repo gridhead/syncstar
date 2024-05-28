@@ -21,27 +21,27 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
-from pyudev import Context
-
+from datetime import datetime
+from hashlib import sha256
 from subprocess import CalledProcessError, check_output
 
+from pyudev import Context
+
 from syncstar import view
-
-from datetime import datetime
-
 from syncstar.config import standard
-
-from hashlib import sha256
 
 
 def show_time() -> str:
-    return datetime.now().strftime("%X %x %Z")
+    return datetime.now().astimezone().strftime("%X %x %Z")
 
 
 def retrieve_disk_size(device: str) -> int:
     try:
-        return int(check_output(["lsblk", "-b", "-n", "-o", "SIZE", f"{device}"]).decode().split("\n")[0])
-    except CalledProcessError as expt:
+        return int(
+            check_output(
+                ["lsblk", "-b", "-n", "-o", "SIZE", f"{device}"]  # noqa : S603, S607
+            ).decode().split("\n")[0])
+    except CalledProcessError:
         view.warning(f"Requested device '{device}' was not found")
         return 0
 
@@ -56,7 +56,9 @@ def list_drives() -> list:
     for indx in ctxtobjc.list_devices(subsystem="block", DEVTYPE="disk"):
         if isinstance(indx.get("ID_BUS"), str):
             if "usb" in indx.get("ID_BUS"):
-                iterdict[sha256(indx.properties["ID_SERIAL_SHORT"].encode()).hexdigest()[0:8].upper()] = {
+                iterdict[
+                    sha256(indx.properties["ID_SERIAL_SHORT"].encode()).hexdigest()[0:8].upper()
+                ] = {
                     "node": indx.device_node,
                     "name": {
                         "vendor": indx.properties["ID_VENDOR"],

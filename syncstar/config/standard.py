@@ -20,11 +20,9 @@ documentation are not subject to the GNU General Public License and may only
 be used or replicated with the express permission of Red Hat, Inc.
 """
 
+
 from logging import getLogger
-
 from logging.config import dictConfig
-
-# Default configuration for service logging
 
 port = 8080
 
@@ -48,6 +46,8 @@ code = "0000000000000000"
 
 broker_link = "redis://localhost:6379/0"
 result_link = "redis://localhost:6379/0"
+
+# Default configuration for service logging
 
 logrconf = {
     "version": 1,
