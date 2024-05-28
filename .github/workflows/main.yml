@@ -1,0 +1,23 @@
+---
+name: syncstar
+on: [push]
+jobs:
+  ci-basic:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    container: fedorapython/fedora-python-tox:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the base dependencies
+        run: |
+             python3 -m pip install --upgrade poetry tox
+
+      - name: Check the correctness of the project config
+        run: |
+             poetry check
+
+      - name: Check the quality of the code
+        run: |
+             tox -e cleaning
