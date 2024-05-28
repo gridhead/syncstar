@@ -21,7 +21,6 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
-import os.path
 from os import urandom
 from time import time
 
@@ -34,8 +33,8 @@ from syncstar.config import manifest, standard
 
 main = Flask(
     import_name=__projname__,
-    template_folder=os.path.abspath("syncstar/frontend/template"),
-    static_folder=os.path.abspath("syncstar/frontend/static")
+    template_folder="frontend/template",
+    static_folder="frontend/static"
 )
 
 
