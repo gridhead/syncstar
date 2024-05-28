@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SyncStar v{{ versdata }}</title>
+    <link href="{{ url_for('static', filename='css3/bs.min.css') }}" rel="stylesheet" crossorigin="anonymous">
+    <link href="{{ url_for('static', filename='css3/core.css') }}" rel="stylesheet" crossorigin="anonymous">
+    <style>
+      @font-face {
+        font-family: "Open Sans";
+        font-weight: 400;
+        font-style: normal;
+        src: url("{{ url_for('static', filename='font/OpenSans_RLAR.ttf') }}");
+      }
+
+      @font-face {
+        font-family: "Open Sans";
+        font-weight: 400;
+        font-style: italic;
+        src: url("{{ url_for('static', filename='font/OpenSans_RLIT.ttf') }}");
+      }
+
+      @font-face {
+        font-family: "Open Sans";
+        font-weight: 700;
+        font-style: normal;
+        src: url("{{ url_for('static', filename='font/OpenSans_BOLD.ttf') }}");
+      }
+
+      @font-face {
+        font-family: "Open Sans";
+        font-weight: 700;
+        font-style: italic;
+        src: url("{{ url_for('static', filename='font/OpenSans_BDIT.ttf') }}");
+      }
+    </style>
+  </head>
+
+  <body onload="activity();">
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-success">
+      <div class="container">
+        <a class="navbar-brand headelem" href="#">SyncStar</a>
+        <div id="navbar">
+          <span class="navbar-text strdelem">
+            v{{ versdata }}
+          </span>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h2 class="headelem">
+        Pending
+      </h2>
+      <div class="list-group strdelem" id="disklist">
+        <div class="card">
+          <div class="card-body strdelem">
+            No USB storage devices detected
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mt-4">
+      <h2 class="headelem">
+        Progress
+      </h2>
+      <div class="list-group strdelem" id="proglist">
+        <div class="card">
+          <div class="card-body strdelem">
+            No running synchronizations detected
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mt-4">
+      <h2 class="headelem">
+        Debug
+      </h2>
+      <div id="debplc">
+        Debug information goes here
+      </div>
+    </div>
+
+    <nav class="navbar fixed-bottom bg-body-secondary">
+      <div class="container">
+        <a class="navbar-brand" href="#">Fixed bottom</a>
+        <span class="navbar-text strdelem" id="lastupdt">
+          Last updated on 00:00:00 00/00/00
+        </span>
+      </div>
+    </nav>
+
+    <div class="modal fade" id="authrepo" data-bs-backdrop="static">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body">
+            <h2 class="headelem mb-4 text-danger" style="text-align: center;">
+              Disconnected
+            </h2>
+            <p style="text-align: center;" class="strdelem mb-0">
+              Please refresh your current browser window to reestablish the connection to the service.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="quesread" data-bs-backdrop="static">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-body">
+            <h2 class="headelem mb-4 text-success" style="text-align: center;">
+              Preparing
+            </h2>
+            <p style="text-align: center;" class="strdelem">
+              You have selected the following USB storage device.
+            </p>
+            <div class="list-group strdelem mb-3">
+              <a class="list-group-item border-success p-2">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                  <h5 class="mb-1 headelem" id="disk-prim">0000000000000000</h5>
+                  <span class="strdelem badge text-bg-success rounded-pill" id="diskindx">00000000</span>
+                </div>
+                <p class="mb-0" id="disk-seco"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
+                <small></small>
+              </a>
+            </div>
+            <p style="text-align: center;" class="strdelem">
+              Choose from the following images for synchronization.
+            </p>
+            <div class="list-group strdelem mb-3" id="isoslist">
+              <div class="card">
+                <div class="card-body strdelem">
+                  No images detected
+                </div>
+              </div>
+            </div>
+            <p style="text-align: center;" class="strdelem mb-1" id="isosname">No images selected</p>
+          </div>
+          <div class="modal-footer justify-content-between" style="text-align: center;">
+            <button type="button" class="btn btn-success strdelem" data-bs-dismiss="modal" onclick="demand_disk_sync(rqstcode);">Sync</button>
+            <button type="button" class="btn btn-danger strdelem" data-bs-dismiss="modal">Back</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container p-3 bottom-0 start-50 translate-middle-x" data-original-class="toast-container p-3">
+      <div id="livenotify" class="toast align-items-center text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true" style="width: fit-content;">
+        <div class="toast-body" style="text-align: center;" id="livenotify-text">
+          0000000000000000
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='jscn/bs.min.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='jscn/core.js') }}" crossorigin="anonymous"></script>
+    <script>
+      let disconnected = false;
+      let icondict = {{ icondict|tojson }};
+      let isoshash = "";
+      let diskhash = "";
+      let rqstcode = "{{ rqstcode }}";
+
+      window.onload = function activity () {
+        retrieve_time(rqstcode);
+        setInterval(
+          function () {
+            retrieve_time(rqstcode);
+          },
+          {{ timesecs }} * 1000
+        );
+      };
+    </script>
+
+  </body>
+</html>

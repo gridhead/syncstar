@@ -1,0 +1,17 @@
+---
+3b6c5275366d02160554fa5703add462da3b8ce9be1749f8806e8dbbffaa2b5a:
+  path: /home/archdesk/Downloads/ubuntu-23.10.1-desktop-amd64.iso
+  name: Ubuntu 23.10.1 Desktop
+  type: ubuntu
+a31e1868d736129a4f9f14fe207f887ff8bface843a43e5bddea8c3c75a78058:
+  path: /home/archdesk/Downloads/Fedora-Server-dvd-x86_64-Rawhide-20230818.n.0.iso
+  name: Fedora Server Rawhide
+  type: fedora
+816758ba8fd8a06dff539b9af08eb8100c8bad526ac19ef4486bce99cd3ca18c:
+  path: /home/archdesk/Downloads/archlinux-2023.03.01-x86_64.iso
+  name: Arch Linux (01 Mar 2023)
+  type: archlx
+4d042dedc8886856db10bc882074b84dcce52f829ea7b3f31d8031db8d84df20:
+  path: /home/archdesk/Downloads/Fedora-Everything-netinst-x86_64-38-1.6.iso
+  name: Fedora Everything 38
+  type: fedora
