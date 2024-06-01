@@ -122,12 +122,18 @@
             </p>
             <div class="list-group strdelem mb-3">
               <a class="list-group-item border-success p-2">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                  <h5 class="mb-1 headelem" id="disk-prim">0000000000000000</h5>
-                  <span class="strdelem badge text-bg-success rounded-pill" id="diskindx">00000000</span>
+                <div class="d-flex w-100" style="gap: 0.5rem;">
+                  <div style="aspect-ratio: 1/1; height: 50px;">
+                      <img src="{{ url_for('static', filename='icon/' + icondict['device'] ) }}" class="w-100 h-100 filter-default">
+                  </div>
+                  <div class="d-flex flex-column flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <h5 class="mb-1 headelem" id="disk-prim">0000000000000000</h5>
+                      <span class="strdelem badge text-bg-success rounded-pill" id="diskindx">00000000</span>
+                    </div>
+                    <p class="mb-0" id="disk-seco"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
+                  </div>
                 </div>
-                <p class="mb-0" id="disk-seco"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
-                <small></small>
               </a>
             </div>
             <p style="text-align: center;" class="strdelem">
@@ -166,6 +172,7 @@
       let isoshash = "";
       let diskhash = "";
       let rqstcode = "{{ rqstcode }}";
+      let iconpath = "{{ url_for('static', filename='icon') }}";
 
       window.onload = function activity () {
         retrieve_time(rqstcode);
