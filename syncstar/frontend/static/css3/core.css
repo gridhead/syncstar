@@ -35,3 +35,33 @@ body {
     font-family: "Open Sans", sans-serif;
     padding-top: 75px;
 }
+
+.filter-working {
+    /* Generated using https://codepen.io/sosuke/pen/Pjoqqp */
+    filter: invert(74%) sepia(88%) saturate(1122%) hue-rotate(350deg) brightness(100%) contrast(106%);
+}
+
+.filter-success {
+    /* Generated using https://codepen.io/sosuke/pen/Pjoqqp */
+    filter: invert(43%) sepia(66%) saturate(448%) hue-rotate(97deg) brightness(89%) contrast(89%);
+}
+
+.filter-failure {
+    /* Generated using https://codepen.io/sosuke/pen/Pjoqqp */
+    filter: invert(33%) sepia(66%) saturate(3618%) hue-rotate(335deg) brightness(92%) contrast(87%);
+}
+
+.filter-pending {
+    /* Generated using https://codepen.io/sosuke/pen/Pjoqqp */
+    filter: invert(45%) sepia(4%) saturate(923%) hue-rotate(169deg) brightness(102%) contrast(84%);
+}
+
+.filter-default {
+    /* Generated using https://codepen.io/sosuke/pen/Pjoqqp */
+    filter: invert(45%) sepia(4%) saturate(923%) hue-rotate(169deg) brightness(102%) contrast(84%);
+}
+
+/*
+Placeholder images can be fetched from here
+https://picsum.photos/
+*/
