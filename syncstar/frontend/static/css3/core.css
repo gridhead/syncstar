@@ -22,17 +22,27 @@ be used or replicated with the express permission of Red Hat, Inc.
 
 
 .headelem {
-    font-family: "Open Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 700;
 }
 
 .strdelem {
-    font-family: "Open Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 400;
 }
 
+.monotext {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 400;
+}
+
+.secotext {
+    font-family: "Inter", sans-serif;
+    font-style: italic;
+}
+
 body {
-    font-family: "Open Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     padding-top: 75px;
 }
 
