@@ -99,9 +99,9 @@ function invoke_images_select_window ( rqstcode, diskindx ) {
                                         <div class="d-flex flex-column flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <h5 class="mb-1 headelem" id="name-${indx}">${elem["name"]}</h5>
-                                                <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-warning'} rounded-pill">${elem["type"]}</span>
+                                                <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-warning'} rounded-pill monotext">${elem["type"]}</span>
                                             </div>
-                                            <p class="mb-0">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
+                                            <p class="mb-0 secotext">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
                                         </div>
                                     </div>
                                 </a>
@@ -166,9 +166,9 @@ function retrieve_time ( rqstcode ) {
                                     <div class="d-flex flex-column flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-start">
                                             <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
-                                            <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
+                                            <span class="strdelem badge text-bg-success rounded-pill monotext">${indx}</span>
                                         </div>
-                                        <p class="mb-0"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
+                                        <p class="mb-0 secotext"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
                                     </div>
                                 </div>
                             </a>
@@ -204,15 +204,15 @@ function retrieve_time ( rqstcode ) {
                                         <div class="d-flex justify-content-between align-items-start">
                                             <h5 class="mb-1 headelem">${prog["disk"]}</h5>
                                             <span 
-                                                ${(prog["mood"] === "PENDING") ? "class='strdelem badge rounded-pill text-bg-secondary'" : ""}
-                                                ${(prog["mood"] === "WORKING") ? "class='strdelem badge rounded-pill text-bg-warning'" : ""}
-                                                ${(prog["mood"] === "FAILURE") ? "class='strdelem badge rounded-pill text-bg-danger'" : ""}
-                                                ${(prog["mood"] === "SUCCESS") ? "class='strdelem badge rounded-pill text-bg-success'" : ""}
+                                                ${(prog["mood"] === "PENDING") ? "class='strdelem badge rounded-pill monotext text-bg-secondary'" : ""}
+                                                ${(prog["mood"] === "WORKING") ? "class='strdelem badge rounded-pill monotext text-bg-warning'" : ""}
+                                                ${(prog["mood"] === "FAILURE") ? "class='strdelem badge rounded-pill monotext text-bg-danger'" : ""}
+                                                ${(prog["mood"] === "SUCCESS") ? "class='strdelem badge rounded-pill monotext text-bg-success'" : ""}
                                             >
                                                 ${indx}
                                             </span>
                                         </div>
-                                        <p class="mb-0">
+                                        <p class="mb-0 secotext">
                                             ${(prog["mood"] === "PENDING") ? "Waiting for" : ""}
                                             ${(prog["mood"] === "FAILURE") ? "Failed" : ""}
                                             ${(prog["mood"] === "SUCCESS") ? "Completed" : ""}
