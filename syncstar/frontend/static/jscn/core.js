@@ -94,12 +94,14 @@ function invoke_images_select_window ( rqstcode, diskindx ) {
                                 <a class="list-group-item ${(elem['bool'] === true) ? 'border-success' : 'border-warning'} list-group-item-action p-2" id="isos-${indx}" onclick="select_hashes('${indx}', '${diskindx}');">
                                     <div class="d-flex w-100" style="gap: 0.5rem;">
                                         <div style="aspect-ratio: 1/1; height: 50px;">
-                                            <img src="${iconpath}/${icondict[elem['type']]}" class="w-100 h-100 filter-default" />
+                                            ${(icondict.hasOwnProperty(elem["type"]) === true) ? `<img src='${iconpath}/${icondict[elem['type']]}' class='w-100 h-100 filter-default' />` : `<img src='${iconpath}/${icondict['common']}' class='w-100 h-100 filter-default' />`}
                                         </div>
                                         <div class="d-flex flex-column flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <h5 class="mb-1 headelem" id="name-${indx}">${elem["name"]}</h5>
-                                                <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-warning'} rounded-pill monotext">${elem["type"]}</span>
+                                                <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-warning'} rounded-pill monotext">
+                                                    ${(icondict.hasOwnProperty(elem["type"]) === true) ? `${elem["type"]}` : `common`}
+                                                </span>
                                             </div>
                                             <p class="mb-0 secotext">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
                                         </div>
