@@ -89,12 +89,12 @@
             <a class="list-group-item p-2" id="isos-main-{{ indx }}">
                 <div class="d-flex w-100" style="gap: 0.5rem;">
                     <div style="aspect-ratio: 1/1; height: 50px;">
-                        <img src="{{ url_for('static', filename='icon/' + icondict[data['type']] ) }}" class="w-100 h-100 filter-default" />
+                        <img src="{% if data['type'] in icondict %}{{ url_for('static', filename='icon/' + icondict[data['type']] ) }}{% else %}{{ url_for('static', filename='icon/' + icondict['common'] ) }}{% endif %}" class="w-100 h-100 filter-default" />
                     </div>
                     <div class="d-flex flex-column flex-grow-1">
                         <div class="d-flex justify-content-between align-items-start">
                             <h5 class="mb-1 headelem" id="name-main-{{ indx }}">{{ data["name"] }}</h5>
-                            <span class="strdelem badge text-bg-success rounded-pill monotext">{{ data["type"] }}</span>
+                            <span class="strdelem badge text-bg-success rounded-pill monotext">{% if data['type'] in icondict %}{{ data["type"] }}{% else %}common{% endif %}</span>
                         </div>
                         <p class="mb-0 secotext">Requires at least <span style="font-weight: bold">{{ ( data["size"] / ( 1024 * 1024 * 1024 ) ) | round(2) }} GiB</span> of storage</p>
                     </div>

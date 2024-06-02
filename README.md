@@ -172,6 +172,60 @@ Create bootable USB drives at the convenience of any headless device
 
 4.  Visit the homepage of the endpoint service using the browser of your choice to get started with using SyncStar.
 
+## Organization
+
+1.  The images archive configuration file stores an unordered dictionary of images archives available for usage. 
+    ```
+    $ cat /etc/syncstar/images.yml
+    ```
+
+2.  The identifier for the images archives is the message digest text which can be found out using the following command.
+    ```
+    $ cat Fedora-Workstation-Live-x86_64-40-1.14.iso | sha256sum
+    ```
+
+3.  The second line per images archive entry stores the location of the file which is validated on every task run.
+    ```
+    path: /home/archdesk/Downloads/Fedora-Workstation-Live-x86_64-40-1.14.iso
+    ```
+
+4.  The third line per images archive entry stores the name that would be displayed to the users on the service frontend.
+    ```
+    name: Fedora Linux 40 Workstation rc1.14
+    ```
+
+5.  The fourth line per images archive entry stores the type that would be used for metadata generation purposes.
+    ```
+    type: fedora
+    ```
+
+6.  The images archive that have not been provided with one of the supported types would be provided with the generic type.
+    ```
+    type: common
+    ```
+
+7.  The images archive should be verified for their consistency by the service administrators before consumption.
+    ```
+    $ wget https://download.fedoraproject.org/pub/fedora/linux/releases/40/Workstation/x86_64/iso/Fedora-Workstation-40-1.14-x86_64-CHECKSUM
+    ```
+
+8.  The following types of images archive are supported for metadata generation purposes used on the service frontend.
+
+    | #  | Name                     | Identity | Icon                                                                                                                                                   |
+    |----|--------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | 1  | Android                  | `gdroid` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/9d52ca1ee37208482a05038d59664689d32f53f5189486932db8d6adbe481126.svg) |
+    | 2  | Arch Linux               | `archlx` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/1c48b14227a7e1091e740a3df7174bbddc453917cc287e503315ae6f1a845b0e.svg) |
+    | 3  | CentOS Stream            | `centos` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/87e960134335e7a8888b69331157a8a84215ed8dbb041ecd3ce73d3866d7f3d3.svg) |
+    | 4  | Debian Linux             | `debian` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/f981aab3aaa188a7d289009af14600152c1ea28e9ad758ed4b97aa5620a74456.svg) |
+    | 5  | Fedora Linux             | `fedora` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/e56f0c223307c5ebc30f78872f1887189715a2afd18c9e9204a63c03e781c271.svg) |
+    | 6  | Kodi or XBMC             | `kodimc` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/2ad165fc2120ad592bdbf852fe501ddaad6e2b944bff7d945d127b4e73a1699e.svg) |
+    | 7  | Linux Mint               | `lxmint` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/33f5c702ffcee2b326dec6d9e8b46730a8cf975a66fc0e5d84e674cacf41c3e4.svg) |
+    | 8  | Manjaro Linux            | `mnjaro` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/246f21c66f18e728feb8e9ad0dd8f35b116656ddb519819e13798a579bdbc59a.svg) |
+    | 9  | Red Hat Enterprise Linux | `redhat` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/170d2033c590e5e7b694ea5f7ae047fbf561768c78e30bf0f545f66e164ebc18.svg) |
+    | 10 | OpenSUSE Linux           | `opsuse` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/e31d78dec9f573dac4e9fda28dd0d3357f4a3b7f5361f7be2498f223310f7254.svg) |
+    | 11 | Ubuntu Linux             | `ubuntu` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/3b7f5a60779863249634141d594548e56208889dc32b783142cbf3999e8adbda.svg) |
+    | 12 | Generic                  | `common` | ![](https://github.com/gridhead/syncstar/blob/main/syncstar/frontend/static/icon/fdf8c530789c78a450d5fae444905349afad1c6c257fb40b6a80de3fa7565c03.svg) |
+
 ## Appreciation
 
 If you like the efforts made here and want to support the development of the project, please consider giving a star to 
