@@ -41,6 +41,7 @@ ruff = "^0.2.0 || ^0.3.0"
 tox = "^4.0.0"
 vcrpy = "^5.1.0 || ^6.0.0"
 pytest-recording = "^0.13.0"
+pytest-mock = "^3.14.0"
 
 [tool.ruff]
 line-length = 100
@@ -48,6 +49,9 @@ fix = true
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "S", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"test/*" = ["S101", "E701", "E501"]
 
 [build-system]
 requires = ["poetry-core"]

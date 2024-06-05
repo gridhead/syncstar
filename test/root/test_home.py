@@ -20,23 +20,23 @@ documentation are not subject to the GNU General Public License and may only
 be used or replicated with the express permission of Red Hat, Inc.
 """
 
+import pytest
 
-from click import style
-
-from syncstar.config import standard
-
-
-def success(message):
-    standard.logger.info(style(message, fg="green", bold=True))
+from syncstar.config import manifest
 
 
-def failure(message):
-    standard.logger.error(style(message, fg="red", bold=True))
-
-
-def warning(message):
-    standard.logger.warning(style(message, fg="yellow", bold=True))
-
-
-def general(message):
-    standard.logger.info(message)
+@pytest.mark.parametrize(
+    "_",
+    [
+        pytest.param(
+            None,
+            id="HOME Endpoint - 200 OK"
+        )
+    ]
+)
+def test_home(client, _):
+    response = client.get("/")
+    assert response.status_code == 200
+    for indx, data in manifest.icondict.items():
+        assert indx in response.data.decode()
+        assert data in response.data.decode()

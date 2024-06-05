@@ -21,22 +21,14 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
-from click import style
+from os.path import abspath
 
-from syncstar.config import standard
+from flask import Flask
 
+from syncstar import __projname__
 
-def success(message):
-    standard.logger.info(style(message, fg="green", bold=True))
-
-
-def failure(message):
-    standard.logger.error(style(message, fg="red", bold=True))
-
-
-def warning(message):
-    standard.logger.warning(style(message, fg="yellow", bold=True))
-
-
-def general(message):
-    standard.logger.info(message)
+main = Flask(
+    import_name=__projname__,
+    template_folder=abspath("syncstar/frontend/template"),
+    static_folder=abspath("syncstar/frontend/static")
+)

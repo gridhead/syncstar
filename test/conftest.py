@@ -20,23 +20,11 @@ documentation are not subject to the GNU General Public License and may only
 be used or replicated with the express permission of Red Hat, Inc.
 """
 
+import pytest
 
-from click import style
-
-from syncstar.config import standard
-
-
-def success(message):
-    standard.logger.info(style(message, fg="green", bold=True))
+from syncstar.dyno import main
 
 
-def failure(message):
-    standard.logger.error(style(message, fg="red", bold=True))
-
-
-def warning(message):
-    standard.logger.warning(style(message, fg="yellow", bold=True))
-
-
-def general(message):
-    standard.logger.info(message)
+@pytest.fixture(scope="function")
+def client():
+    return main.test_client()

@@ -21,11 +21,11 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
+import subprocess
 from datetime import datetime
 from hashlib import sha256
-from subprocess import CalledProcessError, check_output
 
-from pyudev import Context
+import pyudev
 
 from syncstar import view
 from syncstar.config import standard
@@ -38,22 +38,21 @@ def show_time() -> str:
 def retrieve_disk_size(device: str) -> int:
     try:
         return int(
-            check_output(
+            subprocess.check_output(
                 ["lsblk", "-b", "-n", "-o", "SIZE", f"{device}"]  # noqa : S603, S607
             ).decode().split("\n")[0])
-    except CalledProcessError:
+    except subprocess.CalledProcessError:
         view.warning(f"Requested device '{device}' was not found")
         return 0
 
 
-def list_drives() -> list:
+def list_drives() -> dict:
     """
     List storage devices according to the identification provided by the hexdigest of the SHA256
     hash of their hardware serial numbers of the respective storage devices
     """
-    ctxtobjc = Context()
     iterdict = {}
-    for indx in ctxtobjc.list_devices(subsystem="block", DEVTYPE="disk"):
+    for indx in pyudev.Context().list_devices(subsystem="block", DEVTYPE="disk"):
         if isinstance(indx.get("ID_BUS"), str):
             if "usb" in indx.get("ID_BUS"):
                 iterdict[

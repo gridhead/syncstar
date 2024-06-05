@@ -20,23 +20,34 @@ documentation are not subject to the GNU General Public License and may only
 be used or replicated with the express permission of Red Hat, Inc.
 """
 
+import pytest
 
-from click import style
-
-from syncstar.config import standard
-
-
-def success(message):
-    standard.logger.info(style(message, fg="green", bold=True))
+from syncstar.config import keep_config, standard
 
 
-def failure(message):
-    standard.logger.error(style(message, fg="red", bold=True))
-
-
-def warning(message):
-    standard.logger.warning(style(message, fg="yellow", bold=True))
-
-
-def general(message):
-    standard.logger.info(message)
+@pytest.mark.parametrize(
+    "port, repair, period, severity",
+    [
+        pytest.param(
+            standard.port,
+            standard.repair,
+            standard.period,
+            "INFO",
+            id="KEEPCONFIG Function - Standard configuration",
+        ),
+        pytest.param(
+            9090,
+            True,
+            10,
+            "DEBUG",
+            id="KEEPCONFIG Function - Modified configuration",
+        )
+    ]
+)
+def test_keep(port, repair, period, severity):
+    keep_config(port, repair, period)
+    assert standard.port == port
+    assert standard.repair == repair
+    assert standard.period == period
+    assert standard.logrconf["handlers"]["console"]["level"] == severity
+    assert standard.logrconf["root"]["level"] == severity

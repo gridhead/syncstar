@@ -20,23 +20,30 @@ documentation are not subject to the GNU General Public License and may only
 be used or replicated with the express permission of Red Hat, Inc.
 """
 
-
-from click import style
+import pytest
 
 from syncstar.config import standard
 
 
-def success(message):
-    standard.logger.info(style(message, fg="green", bold=True))
-
-
-def failure(message):
-    standard.logger.error(style(message, fg="red", bold=True))
-
-
-def warning(message):
-    standard.logger.warning(style(message, fg="yellow", bold=True))
-
-
-def general(message):
-    standard.logger.info(message)
+@pytest.mark.parametrize(
+    "code, text, word",
+    [
+        pytest.param(
+            403,
+            ["403", "Forbidden"],
+            "CODEZEROEXISTENT",
+            id="AUTH Middleware - 403 Unauthorized",
+        ),
+        pytest.param(
+            200,
+            ["devs", "jobs"],
+            standard.code,
+            id="AUTH Middleware - 200 OK",
+        )
+    ]
+)
+def test_auth(client, code, text, word):
+    response = client.get(f"/read/{word}")
+    assert response.status_code == code
+    for indx in text:
+        assert indx in response.data.decode()

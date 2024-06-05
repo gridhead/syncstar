@@ -21,22 +21,15 @@ be used or replicated with the express permission of Red Hat, Inc.
 """
 
 
-import os.path
 from os import urandom
 from time import time
 
-from flask import Flask, abort, render_template
+from flask import abort, render_template
 
-from syncstar import __projname__, __versdata__, task
+from syncstar import __versdata__, base, task
 from syncstar.auth import checkpoint
-from syncstar.base import list_drives, show_time
 from syncstar.config import manifest, standard
-
-main = Flask(
-    import_name=__projname__,
-    template_folder=os.path.abspath("syncstar/frontend/template"),
-    static_folder=os.path.abspath("syncstar/frontend/static")
-)
+from syncstar.dyno import main
 
 
 @main.route("/", methods=["GET"])
@@ -53,7 +46,7 @@ def home() -> str:
 @main.route("/kick/<rqstcode>/<diskindx>/<isosindx>", methods=["GET"])
 @checkpoint
 def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
-    iterdict = list_drives()
+    iterdict = base.list_drives()
     if diskindx in iterdict:
         if isosindx in standard.imdict:
             if diskindx not in standard.lockls:
@@ -87,7 +80,7 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
 @main.route("/scan/<rqstcode>/<diskindx>", methods=["GET"])
 @checkpoint
 def scan(rqstcode: str, diskindx: str) -> dict:
-    iterdict = list_drives()
+    iterdict = base.list_drives()
     if diskindx in iterdict:
         if diskindx not in standard.lockls:
             imdict = standard.imdict
@@ -111,7 +104,7 @@ def scan(rqstcode: str, diskindx: str) -> dict:
 @checkpoint
 def read(rqstcode: str) -> dict:
     joblst = {}
-    diskdict = list_drives()
+    diskdict = base.list_drives()
 
     # Populate a dictionary of all the storage devices regardless of
     # they are connected currently or were connected in the past
@@ -161,7 +154,7 @@ def read(rqstcode: str) -> dict:
             standard.lockls.remove(indx)
 
     return {
-        "time": show_time(),
+        "time": base.show_time(),
         "devs": diskdict,
         "jobs": joblst,
     }
