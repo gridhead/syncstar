@@ -92,11 +92,20 @@ function invoke_images_select_window ( rqstcode, diskindx ) {
                             document.getElementById("isoslist").innerHTML +=
                                 `
                                 <a class="list-group-item ${(elem['bool'] === true) ? 'border-success' : 'border-warning'} list-group-item-action p-2" id="isos-${indx}" onclick="select_hashes('${indx}', '${diskindx}');">
-                                    <div class="d-flex w-100 justify-content-between align-items-start">
-                                        <h5 class="mb-1 headelem" id="name-${indx}">${elem["name"]}</h5>
-                                        <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-warning'} rounded-pill">${elem["type"]}</span>
+                                    <div class="d-flex w-100" style="gap: 0.5rem;">
+                                        <div style="aspect-ratio: 1/1; height: 50px;">
+                                            ${(icondict.hasOwnProperty(elem["type"]) === true) ? `<img src='${iconpath}/${icondict[elem['type']]}' class='w-100 h-100 filter-default' />` : `<img src='${iconpath}/${icondict['common']}' class='w-100 h-100 filter-default' />`}
+                                        </div>
+                                        <div class="d-flex flex-column flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <h5 class="mb-1 headelem" id="name-${indx}">${elem["name"]}</h5>
+                                                <span class="strdelem badge ${(elem['bool'] === true) ? 'text-bg-success' : 'text-bg-warning'} rounded-pill monotext">
+                                                    ${(icondict.hasOwnProperty(elem["type"]) === true) ? `${elem["type"]}` : `common`}
+                                                </span>
+                                            </div>
+                                            <p class="mb-0 secotext">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
+                                        </div>
                                     </div>
-                                    <p class="mb-0">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
                                 </a>
                                 `;
                         }
@@ -152,11 +161,18 @@ function retrieve_time ( rqstcode ) {
                         document.getElementById("disklist").innerHTML +=
                             `
                             <a class="list-group-item list-group-item-action p-2" id="disk-${indx}" onclick="invoke_images_select_window(rqstcode, '${indx}')">
-                                <div class="d-flex w-100 justify-content-between align-items-start">
-                                    <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
-                                    <span class="strdelem badge text-bg-success rounded-pill">${indx}</span>
+                                <div class="d-flex w-100" style="gap: 0.5rem;">
+                                    <div style="aspect-ratio: 1/1; height: 50px;">
+                                        <img src="${iconpath}/${icondict['device']}" class="w-100 h-100 filter-default" />
+                                    </div>
+                                    <div class="d-flex flex-column flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
+                                            <span class="strdelem badge text-bg-success rounded-pill monotext">${indx}</span>
+                                        </div>
+                                        <p class="mb-0 secotext"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
+                                    </div>
                                 </div>
-                                <p class="mb-0"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
                             </a>
                             `;
                     }
@@ -177,13 +193,39 @@ function retrieve_time ( rqstcode ) {
                         document.getElementById("proglist").innerHTML +=
                             `
                             <a class="list-group-item list-group-item-action p-2" id="prog-${indx}">
-                                <div class="d-flex w-100 justify-content-between align-items-start">
-                                    <h5 class="mb-1 headelem">${prog["disk"]}</h5>
-                                    <span class="strdelem badge ${(prog["mood"] === "PENDING") ? "text-bg-secondary" : ""} ${(prog["mood"] === "WORKING") ? "text-bg-warning" : ""} ${(prog["mood"] === "FAILURE") ? "text-bg-danger" : ""} ${(prog["mood"] === "SUCCESS") ? "text-bg-success" : ""} rounded-pill">${indx}</span>
+                                <div class="d-flex w-100" style="gap: 0.5rem;">
+                                    <div style="aspect-ratio: 1/1; height: 50px;">
+                                        <img 
+                                            ${(prog["mood"] === "PENDING") ? "src='" + iconpath + "/" + icondict["lesson"] + "' class='w-100 h-100 filter-pending'" : ""}
+                                            ${(prog["mood"] === "FAILURE") ? "src='" + iconpath + "/" + icondict["fiasco"] + "' class='w-100 h-100 filter-failure'" : ""}
+                                            ${(prog["mood"] === "WORKING") ? "src='" + iconpath + "/" + icondict["verify"] + "' class='w-100 h-100 filter-working'" : ""}
+                                            ${(prog["mood"] === "SUCCESS") ? "src='" + iconpath + "/" + icondict["result"] + "' class='w-100 h-100 filter-success'" : ""}
+                                        />
+                                    </div>
+                                    <div class="d-flex flex-column flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h5 class="mb-1 headelem">${prog["disk"]}</h5>
+                                            <span 
+                                                ${(prog["mood"] === "PENDING") ? "class='strdelem badge rounded-pill monotext text-bg-secondary'" : ""}
+                                                ${(prog["mood"] === "WORKING") ? "class='strdelem badge rounded-pill monotext text-bg-warning'" : ""}
+                                                ${(prog["mood"] === "FAILURE") ? "class='strdelem badge rounded-pill monotext text-bg-danger'" : ""}
+                                                ${(prog["mood"] === "SUCCESS") ? "class='strdelem badge rounded-pill monotext text-bg-success'" : ""}
+                                            >
+                                                ${indx}
+                                            </span>
+                                        </div>
+                                        <p class="mb-0 secotext">
+                                            ${(prog["mood"] === "PENDING") ? "Waiting for" : ""}
+                                            ${(prog["mood"] === "FAILURE") ? "Failed" : ""}
+                                            ${(prog["mood"] === "SUCCESS") ? "Completed" : ""}
+                                            ${(prog["mood"] === "WORKING") ? "Synchronizing" : "synchronizing"}
+                                            <span style="font-weight: bold">${prog["isos"]}</span>
+                                            ${(prog["mood"] === "WORKING") ? "since" : "after"}
+                                            <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span>
+                                            (${prog["rcrd"]} records written)
+                                        </p>
+                                    </div>
                                 </div>
-                                <p class="mb-0">
-                                    ${(prog["mood"] === "PENDING") ? "Waiting for" : ""} ${(prog["mood"] === "FAILURE") ? "Failed" : ""} ${(prog["mood"] === "SUCCESS") ? "Completed" : ""} ${(prog["mood"] === "WORKING") ? "Synchronizing" : "synchronizing"} <span style="font-weight: bold">${prog["isos"]}</span> ${(prog["mood"] === "WORKING") ? "since" : "after"} <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span> (${prog["rcrd"]} records written)
-                                </p>
                             </a>
                             `;
                     }

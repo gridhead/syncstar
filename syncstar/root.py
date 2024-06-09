@@ -40,6 +40,7 @@ def home() -> str:
         rqstcode=standard.code,
         timesecs=standard.period,
         icondict=manifest.icondict,
+        isosdict=standard.imdict,
     )
 
 

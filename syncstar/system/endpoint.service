@@ -1,0 +1,14 @@
+[Unit]
+Description=SyncStar Endpoint Service
+Requires=network.target
+ConditionPathExists=/home/fedohide-origin/.local/bin/syncstar
+ConditionPathExists=/etc/syncstar/images.yml
+
+[Service]
+User=fedohide-origin
+Group=fedohide-origin
+Environment=SYNCSTAR_ISOSYAML=/etc/syncstar/images.yml
+ExecStart=/home/fedohide-origin/.local/bin/syncstar --port 8080 --repair false --period 2 --images $SYNCSTAR_ISOSYAML
+
+[Install]
+WantedBy=multi-user.target

@@ -14,4 +14,4 @@ a31e1868d736129a4f9f14fe207f887ff8bface843a43e5bddea8c3c75a78058:
 4d042dedc8886856db10bc882074b84dcce52f829ea7b3f31d8031db8d84df20:
   path: /home/archdesk/Downloads/Fedora-Everything-netinst-x86_64-38-1.6.iso
   name: Fedora Everything 38
-  type: fedora
+  type: generic
