@@ -24,7 +24,7 @@ be used or replicated with the express permission of Red Hat, Inc.
 from os import path, urandom
 from sys import exit
 
-from yaml import YAMLError, safe_load
+from yaml import safe_load
 
 from syncstar import view
 from syncstar.config import standard
@@ -60,12 +60,11 @@ def isos_config(images: str) -> None:
                             exit(1)
                     standard.images = images
                     standard.imdict = imdict
-                    print(standard.imdict)
                 else:
-                    view.failure("Invalid images configuration file detected")
+                    view.failure("Empty images configuration file detected")
                     exit(1)
-            except YAMLError:
-                view.failure("Invalid images configuration file detected")
+            except Exception as expt:
+                view.failure(f"Invalid images configuration file detected - {type(expt).__name__}")
                 exit(1)
     else:
         view.failure("Images configuration file not detected")

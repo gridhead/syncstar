@@ -47,6 +47,12 @@ code = "0000000000000000"
 broker_link = "redis://localhost:6379/0"
 result_link = "redis://localhost:6379/0"
 
+# Variables used for the testing purposes
+
+plug = 0
+
+tote = 2
+
 # Default configuration for service logging
 
 logrconf = {

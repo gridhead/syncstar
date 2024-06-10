@@ -21,3 +21,36 @@ jobs:
       - name: Check the quality of the code
         run: |
              tox -e cleaning
+
+  ci-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        tox-env: ["py310", "py311", "py312"]
+    runs-on: ubuntu-latest
+    container: fedorapython/fedora-python-tox:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the base dependencies
+        run: |
+             python3 -m pip install --upgrade tox
+
+      - name: Set up user for running the testcases
+        run: |
+             useradd testrunner
+             chown -R testrunner .
+
+      - name: Check if the YAML file is in the correct place
+        run: |
+             su testrunner -c "ls -lha /__w/syncstar/syncstar/syncstar/config/images.yml"
+
+      - name: Check if the Python binary is in the correct place
+        run: |
+             su testrunner -c "ls -lha /usr/bin/python3"
+
+      - name: Execute tox
+        run: |
+             su testrunner -c "tox -e ${{ matrix.tox-env }}"
+        env:
+             SYNCSTAR_ISOSYAML: "/__w/syncstar/syncstar/syncstar/config/images.yml"

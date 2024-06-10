@@ -30,9 +30,8 @@ from time import sleep, time
 from celery import Celery
 from celery.exceptions import Ignore
 
-from syncstar import __projname__
-from syncstar.base import list_drives
-from syncstar.config import isos_config, standard
+from syncstar import __projname__, base, config
+from syncstar.config import standard
 
 taskmgmt = Celery(
     __projname__,
@@ -43,9 +42,9 @@ taskmgmt = Celery(
 
 @taskmgmt.task(bind=True)
 def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
-    isos_config(envr["SYNCSTAR_ISOSYAML"])
+    config.isos_config(envr["SYNCSTAR_ISOSYAML"])
     isosfile = standard.imdict[isosindx]["path"]
-    diskfile = list_drives()[diskindx]["node"]
+    diskfile = base.list_drives()[diskindx]["node"]
 
     # FOR DEBUGGING PURPOSES
     # Uncomment one of the following lines
@@ -60,7 +59,7 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
     while proc.poll() is None:
         sleep(1)
         proc.send_signal(signal.SIGUSR1)
-        if diskindx in list_drives().keys():
+        if diskindx in base.list_drives().keys():
             text = proc.stderr.readline().decode()
             if "records out" in text:
                 done = text.split(" ")[0].split("+")[0]
