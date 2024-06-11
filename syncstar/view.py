@@ -26,17 +26,17 @@ from click import style
 from syncstar.config import standard
 
 
-def success(message):
+def success(message) -> None:
     standard.logger.info(style(message, fg="green", bold=True))
 
 
-def failure(message):
+def failure(message) -> None:
     standard.logger.error(style(message, fg="red", bold=True))
 
 
-def warning(message):
+def warning(message) -> None:
     standard.logger.warning(style(message, fg="yellow", bold=True))
 
 
-def general(message):
+def general(message) -> None:
     standard.logger.info(message)
