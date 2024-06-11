@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "syncstar"
-version = "0.1.0"
-description = "Create bootable USB drives at the convenience of any headless device"
+version = "0.1.0a1"
+description = "Guest operated service for creating bootable USB storage devices at any community conference kiosk"
 authors = ["Akashdeep Dhar <akashdeep.dhar@gmail.com>"]
-license = "GPL-3.0-or-later"
+license = "	AGPL-3.0-or-later"
 maintainers = ["Akashdeep Dhar <akashdeep.dhar@gmail.com>"]
 readme = "README.md"
 homepage = "https://github.com/gridhead/syncstar"
@@ -14,7 +14,7 @@ classifiers= [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Operating System :: POSIX :: Linux",
