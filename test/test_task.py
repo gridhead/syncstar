@@ -96,6 +96,10 @@ def disklist_negative():
     ]
 )
 def test_task(mocker, work):
+    # Foundation
+    backup_imdict, backup_plug, backup_tote = standard.imdict, standard.plug, standard.tote
+
+    # Initialization
     standard.imdict = {
         "AAAAAAAA": {
             "name": "AAAAAAAA",
@@ -103,11 +107,11 @@ def test_task(mocker, work):
             "size": 0
         }
     }
-
     mocker.patch("celery.Task.update_state", return_value=mock_update_state)
     mocker.patch("syncstar.config.isos_config", return_value=True)
     mocker.patch("subprocess.Popen", return_value=MockProcess())
 
+    # Confirmation
     if work:
         mocker.patch("syncstar.base.list_drives", disklist_positive)
         objc = wrap_diskdrop("AAAAAAAA", "AAAAAAAA")
@@ -117,3 +121,6 @@ def test_task(mocker, work):
         with pytest.raises(Ignore):
             objc = wrap_diskdrop("AAAAAAAA", "AAAAAAAA")
             assert objc is None
+
+    # Teardown
+    standard.imdict, standard.plug, standard.tote = backup_imdict, backup_plug, backup_tote

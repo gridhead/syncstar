@@ -43,7 +43,16 @@ from syncstar.config import standard
     ]
 )
 def test_auth(client, code, text, word):
+    # Foundation
+    backup_hsdict = standard.hsdict
+
+    # Initialization
     response = client.get(f"/read/{word}")
+
+    # Confirmation
     assert response.status_code == code
     for indx in text:
         assert indx in response.data.decode()
+
+    # Teardown
+    standard.hsdict = backup_hsdict

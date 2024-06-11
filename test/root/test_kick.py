@@ -83,6 +83,10 @@ from . import MockTaskResult
     ]
 )
 def test_kick(client, mocker, code, item, isos, objc, size, lock, text):
+    # Foundation
+    backup_imdict, backup_lockls = standard.imdict, standard.lockls
+
+    # Initialization
     standard.imdict = {
         "AAAAAAAA": {
             "path": "AAAAAAAA",
@@ -106,6 +110,11 @@ def test_kick(client, mocker, code, item, isos, objc, size, lock, text):
     mocker.patch("syncstar.base.list_drives", return_value=disk)
     mocker.patch("syncstar.task.wrap_diskdrop.apply_async", return_value=objc)
     response = client.get(f"/kick/{standard.code}/{item}/{isos}")
+
+    # Confirmation
     assert response.status_code == code
     for indx in text:
         assert indx in response.data.decode()
+
+    # Teardown
+    standard.imdict, standard.lockls = backup_imdict, backup_lockls

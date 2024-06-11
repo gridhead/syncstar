@@ -57,7 +57,16 @@ from syncstar.main import meet
     ]
 )
 def test_meet(caplog, code, period, repair, output):
+    # Foundation
+    backup_code, backup_period, backup_repair = standard.code, standard.period, standard.repair
+
+    # Initialization
     standard.code, standard.period, standard.repair = code, period, repair
     meet()
+
+    # Confirmation
     for indx in output:
         assert indx in caplog.text
+
+    # Teardown
+    standard.code, standard.period, standard.repair = backup_code, backup_period, backup_repair
