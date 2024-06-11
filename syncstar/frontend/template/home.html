@@ -96,7 +96,7 @@
                             <h5 class="mb-1 headelem" id="name-main-{{ indx }}">{{ data["name"] }}</h5>
                             <span class="strdelem badge text-bg-success rounded-pill monotext">{% if data['type'] in icondict %}{{ data["type"] }}{% else %}common{% endif %}</span>
                         </div>
-                        <p class="mb-0 secotext">Requires at least <span style="font-weight: bold">{{ ( data["size"] / ( 1024 * 1024 * 1024 ) ) | round(2) }} GiB</span> of storage</p>
+                        <small class="mb-0 secotext text-muted">Requires at least <span style="font-weight: bold">{{ ( data["size"] / ( 1024 * 1024 * 1024 ) ) | round(2) }} GiB</span> of storage</small>
                     </div>
                 </div>
             </a>
@@ -139,16 +139,20 @@
 
     <div class="container mt-4">
       <h2 class="headelem">
-        Debug
+        Diagnosis
       </h2>
-      <div id="debplc">
-        Debug information goes here
+      <div class="card">
+        <div class="card-body strdelem p-1">
+          <pre id="debplc" class="mb-0">
+            Debug information goes here
+            </pre>
+        </div>
       </div>
     </div>
 
     <nav class="navbar fixed-bottom bg-body-secondary">
       <div class="container">
-        <a class="navbar-brand" href="#">Fixed bottom</a>
+        <a class="navbar-brand" href="#"></a>
         <span class="navbar-text strdelem" id="lastupdt">
           Last updated on 00:00:00 00/00/00
         </span>
@@ -191,7 +195,7 @@
                       <h5 class="mb-1 headelem" id="disk-prim">0000000000000000</h5>
                       <span class="strdelem badge text-bg-success rounded-pill monotext" id="diskindx">00000000</span>
                     </div>
-                    <p class="mb-0 secotext" id="disk-seco"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
+                    <small class="mb-0 secotext text-muted" id="disk-seco"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></small>
                   </div>
                 </div>
               </a>
@@ -216,7 +220,7 @@
       </div>
     </div>
 
-    <div class="toast-container p-3 bottom-0 start-50 translate-middle-x" data-original-class="toast-container p-3">
+    <div class="toast-container p-3 bottom-0 start-50 translate-middle-x position-fixed" data-original-class="toast-container p-3">
       <div id="livenotify" class="toast align-items-center text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true" style="width: fit-content;">
         <div class="toast-body" style="text-align: center;" id="livenotify-text">
           0000000000000000

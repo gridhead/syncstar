@@ -103,7 +103,7 @@ function invoke_images_select_window ( rqstcode, diskindx ) {
                                                     ${(icondict.hasOwnProperty(elem["type"]) === true) ? `${elem["type"]}` : `common`}
                                                 </span>
                                             </div>
-                                            <p class="mb-0 secotext">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</p>
+                                            <small class="mb-0 secotext text-muted">Requires at least <span class="${(elem['bool'] === true) ? 'text-success' : 'text-warning'}" style="font-weight: bold">${(elem["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> of storage</small>
                                         </div>
                                     </div>
                                 </a>
@@ -143,7 +143,7 @@ function retrieve_time ( rqstcode ) {
                 document.getElementById("lastupdt").innerText = "Last updated on " + data.time;
 
                 // DEBUG PRINT BELOW
-                document.getElementById("debplc").innerText = rqstobjc.responseText;
+                document.getElementById("debplc").textContent = JSON.stringify(data, undefined, 2);
 
                 if (Object.keys(data.devs).length === 0) {
                     document.getElementById("disklist").innerHTML =
@@ -170,7 +170,7 @@ function retrieve_time ( rqstcode ) {
                                             <h5 class="mb-1 headelem">${disk["name"]["vendor"]}&nbsp;${disk["name"]["handle"]}</h5>
                                             <span class="strdelem badge text-bg-success rounded-pill monotext">${indx}</span>
                                         </div>
-                                        <p class="mb-0 secotext"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></p>
+                                        <small class="mb-0 secotext text-muted"><span style="font-weight: bold">${(disk["size"] / (1024 * 1024 * 1024)).toFixed(2)} GiB</span> on <span style="font-weight: bold">${disk["node"]}</span></small>
                                     </div>
                                 </div>
                             </a>
@@ -214,7 +214,7 @@ function retrieve_time ( rqstcode ) {
                                                 ${indx}
                                             </span>
                                         </div>
-                                        <p class="mb-0 secotext">
+                                        <small class="mb-0 secotext text-muted">
                                             ${(prog["mood"] === "PENDING") ? "Waiting for" : ""}
                                             ${(prog["mood"] === "FAILURE") ? "Failed" : ""}
                                             ${(prog["mood"] === "SUCCESS") ? "Completed" : ""}
@@ -223,7 +223,7 @@ function retrieve_time ( rqstcode ) {
                                             ${(prog["mood"] === "WORKING") ? "since" : "after"}
                                             <span style="font-weight: bold">${prog["time"].toFixed(2)} seconds</span>
                                             (${prog["rcrd"]} records written)
-                                        </p>
+                                        </small>
                                     </div>
                                 </div>
                             </a>
