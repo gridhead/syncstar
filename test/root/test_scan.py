@@ -36,6 +36,10 @@ from syncstar.config import standard
     ]
 )
 def test_scan(client, mocker, code, text, lock, size, item):
+    # Foundation
+    backup_imdict, backup_dkdict, backup_lock = standard.imdict, standard.dkdict, standard.lockls
+
+    # Initialization
     standard.imdict = {
         "AAAAAAAA": {
             "path": "AAAAAAAA",
@@ -44,7 +48,7 @@ def test_scan(client, mocker, code, text, lock, size, item):
             "size": 0 if size else 2**40,
         }
     }
-    standard.dkdict = disk = {
+    standard.dkdict = {
         "AAAAAAAA": {
             "node": "/dev/null",
             "name": {
@@ -56,8 +60,13 @@ def test_scan(client, mocker, code, text, lock, size, item):
         }
     }
     standard.lockls = lock
-    mocker.patch("syncstar.base.list_drives", return_value=disk)
+    mocker.patch("syncstar.base.list_drives", return_value=standard.dkdict)
     response = client.get(f"/scan/{standard.code}/{item}")
+
+    # Confirmation
     assert response.status_code == code
     for indx in text:
         assert indx in response.data.decode()
+
+    # Teardown
+    standard.imdict, standard.dkdict, standard.lockls = backup_dkdict, backup_imdict, backup_lock

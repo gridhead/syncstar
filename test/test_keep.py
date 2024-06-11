@@ -46,9 +46,18 @@ from syncstar.config import keep_config, standard
     ]
 )
 def test_keep(port, repair, period, severity):
+    # Foundation
+    backup_port, backup_repair, backup_period, backup_logrconf = standard.port, standard.repair, standard.period, standard.logrconf
+
+    # Initialization
     keep_config(port, repair, period)
+
+    # Confirmation
     assert standard.port == port
     assert standard.repair == repair
     assert standard.period == period
     assert standard.logrconf["handlers"]["console"]["level"] == severity
     assert standard.logrconf["root"]["level"] == severity
+
+    # Teardown
+    standard.port, standard.repair, standard.period, standard.logrconf = backup_port, backup_repair, backup_period, backup_logrconf

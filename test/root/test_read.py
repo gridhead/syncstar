@@ -61,6 +61,10 @@ from . import MockAsyncResult
     ]
 )
 def test_read(client, mocker, mood, objc, jobs):
+    # Foundation
+    backup_joblst, backup_imdict, backup_hsdict, backup_lockls = standard.joblst, standard.imdict, standard.hsdict, standard.lockls
+
+    # Initialization
     standard.joblst = jobs
     standard.imdict = {
         "AAAAAAAA": {
@@ -70,7 +74,7 @@ def test_read(client, mocker, mood, objc, jobs):
             "size": 0,
         }
     }
-    disk = {
+    standard.hsdict = disk = {
         "AAAAAAAA": {
             "node": "/dev/null",
             "name": {
@@ -87,6 +91,11 @@ def test_read(client, mocker, mood, objc, jobs):
     mocker.patch("syncstar.base.list_drives", return_value=disk)
     mocker.patch("syncstar.task.wrap_diskdrop.AsyncResult", return_value=objc)
     response = client.get(f"/read/{standard.code}")
+
+    # Confirmation
     assert loads(response.data.decode())["devs"] == disk
     assert response.status_code == 200
     assert standard.hsdict == disk
+
+    # Teardown
+    standard.joblst, standard.imdict, standard.hsdict, standard.lockls = backup_joblst, backup_imdict, backup_hsdict, backup_lockls

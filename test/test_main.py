@@ -107,8 +107,11 @@ from syncstar.main import main
     ]
 )
 def test_main(cmdl, code, text):
+    # Initialization
     runner = CliRunner()
     result = runner.invoke(main, cmdl)
+
+    # Confirmation
     assert result.exit_code == code
     for indx in text:
         assert indx in result.output

@@ -26,7 +26,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from syncstar.config import isos_config
+from syncstar.config import isos_config, standard
 
 
 @pytest.mark.parametrize(
@@ -70,6 +70,10 @@ from syncstar.config import isos_config
     ]
 )
 def test_isos(caplog, work, text):
+    # Foundation
+    backup_images, backup_imdict = standard.images, standard.imdict
+
+    # Initialization & Confirmation
     if work in [0, 1]:
         if work == 0:   temppath = "/usr/bin/zeroexistent"
         else:           temppath = "/usr/bin/python3"
@@ -94,5 +98,9 @@ def test_isos(caplog, work, text):
             else:
                 isos_config(temppath)
 
+    # Initialization & Confirmation
     for indx in text:
         assert indx in caplog.text
+
+    # Teardown
+    standard.images, standard.imdict = backup_images, backup_imdict

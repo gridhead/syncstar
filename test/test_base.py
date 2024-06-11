@@ -77,6 +77,7 @@ class MockDeviceList:
     ]
 )
 def test_disk_size(mocker, work):
+    # Initialization & Confirmation
     if work:
         output = b"1024\n512\n256\n128\n128"
         mocker.patch("subprocess.check_output", return_value=output)
@@ -96,6 +97,10 @@ def test_disk_size(mocker, work):
     ]
 )
 def test_list_drives(mocker, _):
+    # Foundation
+    backup_dkdict = standard.dkdict
+
+    # Initialization
     mocklist = MockDeviceList(
         [
             MockDeviceItem("AAAAAAAA"),
@@ -107,6 +112,8 @@ def test_list_drives(mocker, _):
     mocker.patch("syncstar.base.retrieve_disk_size", return_value=0)
     mocker.patch("pyudev.Context.list_devices", return_value=mocklist)
     list_drives()
+
+    # Confirmation
     for indx in mocklist:
         hash = sha256(indx.iden.encode()).hexdigest()[0:8].upper()
         assert hash in standard.dkdict
@@ -115,3 +122,6 @@ def test_list_drives(mocker, _):
         assert indx.properties["ID_VENDOR"] == standard.dkdict[hash]["name"]["vendor"]
         assert indx.properties["ID_HANDLE"] == standard.dkdict[hash]["name"]["handle"]
         assert indx.device_node == standard.dkdict[hash]["node"]
+
+    # Teardown
+    standard.dkdict = backup_dkdict
