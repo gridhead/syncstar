@@ -22,18 +22,18 @@ be used or replicated with the express permission of Red Hat, Inc.
 
 
 from functools import wraps
+from typing import Callable
 
 from flask import abort
 
 from syncstar.config import standard
 
 
-def checkpoint(path):
+def checkpoint(path: Callable) -> Callable:
     @wraps(path)
-    def authenticate(*args, **kwargs):
+    def authenticate(*args, **kwargs) -> Callable:
         rqstcode = kwargs.get("rqstcode")
-        if rqstcode == standard.code:
-            return path(*args, **kwargs)
-        else:
+        if rqstcode != standard.code:
             abort(403)
+        return path(*args, **kwargs)
     return authenticate
