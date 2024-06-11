@@ -1,6 +1,26 @@
 # SyncStar
 
-Create bootable USB drives at the convenience of any headless device
+Guest operated service for creating bootable USB storage devices at any community conference kiosk
+
+## Screenshots
+
+![](https://raw.githubusercontent.com/gridhead/syncstar/main/data/dash.png)
+
+![](https://raw.githubusercontent.com/gridhead/syncstar/main/data/expo.png)
+
+## Features
+
+### For development
+- Minimal command line interface based configuration with wide range of customizable options
+- Stellar overall codebase quality is ensured with 100% coverage of functional backend code
+- Over 34 checks are provided for unit based, end-to-end based integration based codebase testing
+- GitHub Actions and Pre-Commit CI are enabled to automate maintenance of codebase quality
+
+### For consumption
+- Asynchronous multiprocessing allows for flashing multiple storage devices simultaneously
+- Programming standards and engineering methodologies are maintained as much as possible
+- Frontend is adaptive across various viewport types and browser-side assistive technologies
+- Detailed documentation for both consumption and development purposes are readily provided
 
 ## Installation
 
