@@ -44,6 +44,11 @@ be used or replicated with the express permission of Red Hat, Inc.
 body {
     font-family: "Inter", sans-serif;
     padding-top: 75px;
+    padding-bottom: 75px;
+}
+
+pre {
+    font-family: "JetBrains Mono", monospace;
 }
 
 .filter-working {
