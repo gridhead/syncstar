@@ -13,6 +13,10 @@ BuildArch:      noarch
 
 BuildRequires:  python3-devel
 
+Requires:       coreutils
+Requires:       util-linux
+Requires:       redis
+
 %description
 %{desc}
 
