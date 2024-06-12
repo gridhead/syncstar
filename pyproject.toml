@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "syncstar"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Guest operated service for creating bootable USB storage devices at any community conference kiosk"
 authors = ["Akashdeep Dhar <akashdeep.dhar@gmail.com>"]
-license = "	AGPL-3.0-or-later"
+license = "AGPL-3.0-or-later"
 maintainers = ["Akashdeep Dhar <akashdeep.dhar@gmail.com>"]
 readme = "README.md"
 homepage = "https://github.com/gridhead/syncstar"
@@ -26,12 +26,12 @@ classifiers= [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4"
+python = ">=3.10,<4"
 click = ">=8.0.0,<9"
 flask = ">=3.0.0"
-pyudev = "^0.24.3"
+pyudev = "^0.24.0"
 pyyaml = "^6.0.1"
-celery = "^5.4.0"
+celery = "^5.3.0"
 redis = "^5.0.4"
 
 [tool.poetry.group.dev.dependencies]
