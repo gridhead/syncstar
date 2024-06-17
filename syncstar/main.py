@@ -21,10 +21,10 @@ or replicated with the express permission of Red Hat, Inc.
 """
 
 
-from click import IntRange, Path, command, option, version_option
+from click import IntRange, Path, group, option, version_option
 
-from syncstar import __versdata__, view
-from syncstar.config import isos_config, keep_config, standard
+from syncstar import __versdata__, config, task, view
+from syncstar.config import standard
 from syncstar.root import work
 
 
@@ -32,6 +32,9 @@ def meet() -> None:
     view.success(
         f"Starting SyncStar v{__versdata__}..."
     )
+
+
+def meet_apim() -> None:
     view.warning(
         f"Use the secret code '{standard.code}' to authenticate with the service"
     )
@@ -43,33 +46,21 @@ def meet() -> None:
     )
 
 
-@command(name="syncstar")
-@option(
-    "-p",
-    "--port",
-    "port",
-    type=IntRange(min=64, max=65535),
-    default=8080,
-    required=False,
-    help="Set the port value for the service frontend endpoints"
-)
-@option(
-    "-r",
-    "--repair",
-    "repair",
-    type=bool,
-    default=False,
-    required=False,
-    help="Show the nerdy statistics to help repair the codebase"
-)
-@option(
-    "-t",
-    "--period",
-    "period",
-    type=IntRange(min=2, max=30),
-    default=2,
-    required=False,
-    help="Set the period after which the info will be refreshed"
+def meet_cell() -> None:
+    view.warning(
+        f"Images config - '{standard.images}'"
+    )
+    view.warning(
+        f"Broker source - '{standard.broker_link}'"
+    )
+    view.warning(
+        f"Result source - '{standard.result_link}'"
+    )
+
+
+@group(
+    name="syncstar",
+    context_settings={"show_default": True},
 )
 @option(
     "-i",
@@ -80,11 +71,67 @@ def meet() -> None:
     required=True,
     help="Set the location to where the images config is stored"
 )
+@option(
+    "-s",
+    "--source",
+    "source",
+    type=Path(),
+    default=standard.source,
+    required=None,
+    help="Set the location where tasks will be exchanged"
+)
+@option(
+    "-r",
+    "--repair",
+    "repair",
+    type=bool,
+    default=standard.repair,
+    required=False,
+    help="Show the nerdy statistics to help repair the codebase"
+)
 @version_option(
     version=__versdata__, prog_name="SyncStar by Akashdeep Dhar"
 )
-def main(port: int = 8080, repair: bool = False, period: int = 2, images: str = None) -> None:
-    keep_config(port, repair, period)
-    isos_config(images)
+def main(images: str = None, source: str = standard.source, repair: bool = False) -> None:
     meet()
+    config.main_config(images, source, repair)
+
+
+@main.command(
+    name="apim",
+    help="Start the frontend service",
+    context_settings={"show_default": True},
+)
+@option(
+    "-p",
+    "--port",
+    "port",
+    type=IntRange(min=64, max=65535),
+    default=8080,
+    required=False,
+    help="Set the port value for the service frontend endpoints"
+)
+@option(
+    "-t",
+    "--period",
+    "period",
+    type=IntRange(min=2, max=30),
+    default=2,
+    required=False,
+    help="Set the period after which the info will be refreshed"
+)
+def apim(port: int = standard.port, period: int = standard.period) -> None:
+    meet_apim()
+    config.apim_config(port, period)
     work()
+
+
+@main.command(
+    name="cell",
+    help="Start the worker service",
+    context_settings={"show_default": True},
+)
+def cell() -> None:
+    meet_cell()
+    workobjc = task.taskmgmt.Worker()
+    workobjc.start()

@@ -30,20 +30,16 @@ from syncstar import view
 from syncstar.config import standard
 
 
-def keep_config(port: int, repair: bool, period: int) -> None:
+def apim_config(port: int, period: int) -> None:
     # Generate a secret code for the frontend to authenticate with the service
     standard.code = urandom(8).hex().upper()
 
     # Keep the configuration variables served in the command for consumption
     standard.port = port
-    standard.repair = repair
     standard.period = period
-    if repair:
-        standard.logrconf["handlers"]["console"]["level"] = "DEBUG"
-        standard.logrconf["root"]["level"] = "DEBUG"
 
 
-def isos_config(images: str) -> None:
+def main_config(images: str, source: str, repair: bool) -> None:
     # Check the validity of the images configuration file before saving the contents
     if path.exists(images):
         with open(images) as yamlfile:
@@ -69,3 +65,9 @@ def isos_config(images: str) -> None:
     else:
         view.failure("Images configuration file not detected")
         exit(1)
+
+    standard.source = standard.broker_link = standard.result_link = source
+    standard.repair = repair
+    if repair:
+        standard.logrconf["handlers"]["console"]["level"] = "DEBUG"
+        standard.logrconf["root"]["level"] = "DEBUG"

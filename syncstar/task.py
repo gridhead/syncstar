@@ -24,13 +24,12 @@ or replicated with the express permission of Red Hat, Inc.
 import signal
 import subprocess
 import traceback
-from os import environ as envr
 from time import sleep, time
 
 from celery import Celery
 from celery.exceptions import Ignore
 
-from syncstar import __projname__, base, config
+from syncstar import __projname__, base
 from syncstar.config import standard
 
 taskmgmt = Celery(
@@ -42,7 +41,6 @@ taskmgmt = Celery(
 
 @taskmgmt.task(bind=True)
 def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
-    config.isos_config(envr["SYNCSTAR_ISOSYAML"])
     isosfile = standard.imdict[isosindx]["path"]
     diskfile = base.list_drives()[diskindx]["node"]
 
