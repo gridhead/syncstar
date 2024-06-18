@@ -44,8 +44,9 @@ lockls = []
 
 code = "0000000000000000"
 
-broker_link = "redis://localhost:6379/0"
-result_link = "redis://localhost:6379/0"
+source = "redis://localhost:6379/0"
+broker_link = source
+result_link = source
 
 # Variables used for the testing purposes
 

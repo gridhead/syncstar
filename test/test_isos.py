@@ -26,7 +26,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from syncstar.config import isos_config, standard
+from syncstar.config import main_config, standard
 
 
 @pytest.mark.parametrize(
@@ -67,9 +67,13 @@ from syncstar.config import isos_config, standard
             ],
             id="ISOSCONFIG Function - Negative ISOSYAML configuration - Empty config",
         ),
+
     ]
 )
 def test_isos(caplog, work, text):
+    # TODO - Add checks for the `source` parameter specific usages of the `main_config` function
+    # TODO - Add checks for the `repair` parameter specific usages of the `main_config` function
+
     # Foundation
     backup_images, backup_imdict = standard.images, standard.imdict
 
@@ -78,7 +82,7 @@ def test_isos(caplog, work, text):
         if work == 0:   temppath = "/usr/bin/zeroexistent"
         else:           temppath = "/usr/bin/python3"
         with pytest.raises(SystemExit) as func:
-            isos_config(temppath)
+            main_config(temppath, standard.source, standard.repair)
             assert func.value.code == 1
     else:
         with TemporaryDirectory(prefix="syncstar-test-") as tempdrct:
@@ -93,10 +97,10 @@ def test_isos(caplog, work, text):
 
             if work != 2:
                 with pytest.raises(SystemExit) as func:
-                    isos_config(temppath)
+                    main_config(temppath, standard.source, standard.repair)
                     assert func.value.code == 1
             else:
-                isos_config(temppath)
+                main_config(temppath, standard.source, standard.repair)
 
     # Initialization & Confirmation
     for indx in text:

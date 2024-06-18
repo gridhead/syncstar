@@ -35,24 +35,26 @@ from syncstar.main import main
             "--help",
             0,
             [
-                "Usage: syncstar [OPTIONS]",
+                "Usage: syncstar [OPTIONS] COMMAND [ARGS]...",
                 "Options:",
-                "-p, --port INTEGER RANGE",
-                "-r, --repair BOOLEAN",
-                "-t, --period INTEGER RANGE",
                 "-i, --images PATH",
+                "-s, --source PATH",
+                "-r, --repair BOOLEAN",
                 "--version",
                 "--help",
-                "Set the port value for the service frontend",
-                "endpoints  [64<=x<=65535]",
-                "Show the nerdy statistics to help repair the",
-                "codebase",
-                "Set the period after which the info will be",
-                "refreshed  [2<=x<=30]",
-                "Set the location to where the images config is",
-                "stored  [required]",
+                "Set the location to where the images config is stored",
+                "[required]",
+                "Set the location where tasks will be exchanged",
+                "[default: redis://localhost:6379/0]",
+                "Show the nerdy statistics to help repair the codebase",
+                "[default: False]",
                 "Show the version and exit.",
                 "Show this message and exit.",
+                "Commands:",
+                "apim",
+                "cell",
+                "Start the frontend service",
+                "Start the worker service",
             ],
             id="MAIN Function - Basic help"
         ),
@@ -64,50 +66,120 @@ from syncstar.main import main
             ],
             id="MAIN Function - Version information"
         ),
+    ]
+)
+def test_main(cmdl, code, text):
+    # Initialization
+    runner = CliRunner()
+    result = runner.invoke(main, cmdl)
+
+    # Confirmation
+    assert result.exit_code == code
+    for indx in text:
+        assert indx in result.output
+
+
+@pytest.mark.parametrize(
+    "cmdl, code, text",
+    [
         pytest.param(
-            "--port 0 --repair true --period 2 --images /etc/",
+            "--images /etc/ --source redis://localhost:6379/0 --repair true apim --port 0 --period 2",
             2,
             [
-                "Usage: syncstar [OPTIONS]",
-                "Try 'syncstar --help' for help.",
+                "Usage: syncstar apim [OPTIONS]",
+                "Try 'syncstar apim --help' for help.",
                 "Error: Invalid value for '-p' / '--port': 0 is not in the range 64<=x<=65535.",
             ],
             id="MAIN Function - Incorrect input - PORT"
         ),
         pytest.param(
-            "--port 8080 --repair medium --period 2 --images /etc/",
+            "--images /etc/ --source redis://localhost:6379/0 --repair true apim --port 8080 --period 0",
             2,
             [
-                "Usage: syncstar [OPTIONS]",
-                "Try 'syncstar --help' for help.",
-                "Error: Invalid value for '-r' / '--repair': 'medium' is not a valid boolean.",
-            ],
-            id="MAIN Function - Incorrect input - REPAIR"
-        ),
-        pytest.param(
-            "--port 8080 --repair true --period 0 --images /etc/",
-            2,
-            [
-                "Usage: syncstar [OPTIONS]",
-                "Try 'syncstar --help' for help.",
+                "Usage: syncstar apim [OPTIONS]",
+                "Try 'syncstar apim --help' for help.",
                 "Error: Invalid value for '-t' / '--period': 0 is not in the range 2<=x<=30.",
             ],
             id="MAIN Function - Incorrect input - PERIOD"
         ),
+    ]
+)
+def test_apim(mocker, cmdl, code, text):
+    # Initialization
+    mocker.patch("syncstar.config.main_config", return_value=True)
+    runner = CliRunner()
+    result = runner.invoke(main, cmdl)
+
+    # Confirmation
+    assert result.exit_code == code
+    for indx in text:
+        assert indx in result.output
+
+
+@pytest.mark.parametrize(
+    "cmdl, code, text",
+    [
         pytest.param(
-            "--port 8080 --repair true --period 2 --images /etc/zeroexistent",
+            "--images /etc/zeroexistent",
             2,
             [
-                "Usage: syncstar [OPTIONS]",
+                "Usage: syncstar [OPTIONS] COMMAND [ARGS]...",
                 "Try 'syncstar --help' for help.",
                 "Error: Invalid value for '-i' / '--images': Path '/etc/zeroexistent' does not exist.",
             ],
             id="MAIN Function - Incorrect input - IMAGES"
         ),
+        pytest.param(
+            "--repair zeroexistent",
+            2,
+            [
+                "Usage: syncstar [OPTIONS] COMMAND [ARGS]...",
+                "Try 'syncstar --help' for help.",
+                "Error: Invalid value for '-r' / '--repair': 'zeroexistent' is not a valid boolean."
+            ],
+            id="MAIN Function - Incorrect input - REPAIR"
+        )
     ]
 )
-def test_main(cmdl, code, text):
+def test_main_conf(cmdl, code, text):
     # Initialization
+    runner = CliRunner()
+    result = runner.invoke(main, cmdl)
+
+    # Confirmation
+    assert result.exit_code == code
+    for indx in text:
+        assert indx in result.output
+
+
+@pytest.mark.parametrize(
+    "cmdl, code, text",
+    [
+        pytest.param(
+            "--images /etc/ --source redis://localhost:6379/0 --repair true",
+            2,
+            [
+                "Usage: syncstar [OPTIONS] COMMAND [ARGS]...",
+                "Try 'syncstar --help' for help.",
+                "Error: Missing command.",
+            ],
+            id="MAIN Function - Missing command"
+        ),
+        pytest.param(
+            "--images /etc/ --source redis://localhost:6379/0 --repair true zeroexistent",
+            2,
+            [
+                "Usage: syncstar [OPTIONS] COMMAND [ARGS]...",
+                "Try 'syncstar --help' for help.",
+                "Error: No such command 'zeroexistent'.",
+            ],
+            id="MAIN Function - Invalid command"
+        ),
+    ]
+)
+def test_main_comd(mocker, cmdl, code, text):
+    # Initialization
+    mocker.patch("syncstar.config.main_config", return_value=True)
     runner = CliRunner()
     result = runner.invoke(main, cmdl)
 

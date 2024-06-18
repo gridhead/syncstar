@@ -109,7 +109,7 @@ def test_task(mocker, work):
         }
     }
     mocker.patch("celery.Task.update_state", return_value=mock_update_state)
-    mocker.patch("syncstar.config.isos_config", return_value=True)
+    mocker.patch("syncstar.config.main_config", return_value=True)
     mocker.patch("subprocess.Popen", return_value=MockProcess())
 
     # Confirmation
