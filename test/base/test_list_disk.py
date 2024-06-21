@@ -21,70 +21,14 @@ or replicated with the express permission of Red Hat, Inc.
 """
 
 
-import subprocess
 from hashlib import sha256
 
 import pytest
 
-from syncstar.base import list_drives, retrieve_disk_size
+from syncstar.base import list_drives
 from syncstar.config import standard
 
-
-class MockDeviceItem:
-    def __init__(self, iden: str):
-        self.ID_BUS = "usb"
-        self.device_node = "/dev/null"
-        self.device_number = "12121999"
-        self.iden = iden
-        self.size = 0
-        self.properties = {
-            "ID_SERIAL_SHORT": iden,
-            "ID_VENDOR": iden,
-            "ID_MODEL": iden,
-        }
-
-    def get(self, item: str):
-        return self.ID_BUS
-
-
-class MockDeviceList:
-    def __init__(self, devs: list):
-        self.devs = devs
-        self.indx = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.indx < len(self.devs):
-            item = self.devs[self.indx]
-            self.indx += 1
-            return item
-        raise StopIteration
-
-
-@pytest.mark.parametrize(
-    "work",
-    [
-        pytest.param(
-            True,
-            id="DISKSIZE Function - Function works positively",
-        ),
-        pytest.param(
-            False,
-            id="DISKSIZE Function - Function works negatively",
-        )
-    ]
-)
-def test_disk_size(mocker, work):
-    # Initialization & Confirmation
-    if work:
-        output = b"1024\n512\n256\n128\n128"
-        mocker.patch("subprocess.check_output", return_value=output)
-        assert retrieve_disk_size("/dev/null") == 1024
-    else:
-        mocker.patch("syncstar.base.retrieve_disk_size", side_effect=subprocess.CalledProcessError)
-        assert retrieve_disk_size("/dev/null") == 0
+from . import MockDeviceItem, MockDeviceList
 
 
 @pytest.mark.parametrize(
