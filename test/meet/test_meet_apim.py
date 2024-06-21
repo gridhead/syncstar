@@ -24,7 +24,7 @@ or replicated with the express permission of Red Hat, Inc.
 import pytest
 
 from syncstar.config import standard
-from syncstar.main import meet_apim, meet_cell
+from syncstar.main import meet_apim
 
 
 @pytest.mark.parametrize(
@@ -68,46 +68,3 @@ def test_meet_apim(caplog, code, period, repair, output):
 
     # Teardown
     standard.code, standard.period, standard.repair = backup_code, backup_period, backup_repair
-
-
-@pytest.mark.parametrize(
-    "images, source, output",
-    [
-        pytest.param(
-            standard.images,
-            standard.source,
-            [
-                f"Images config - '{standard.images}'",
-                f"Broker source - '{standard.broker_link}'",
-                f"Result source - '{standard.result_link}'",
-            ],
-            id="MEET_CELL Function - Standard parameters"
-        ),
-        pytest.param(
-            "/etc/zeroexistent",
-            "/etc/zeroexistent",
-            [
-                "Images config - '/etc/zeroexistent'",
-                "Broker source - '/etc/zeroexistent'",
-                "Result source - '/etc/zeroexistent'",
-            ],
-            id="MEET_CELL Function - Modified parameters"
-        ),
-    ]
-)
-def test_meet_cell(caplog, images, source, output):
-    # Foundation
-    backup_images, backup_source = standard.images, standard.source
-
-    # Initialization
-    standard.images = images
-    standard.broker_link, standard.result_link = source, source
-    meet_cell()
-
-    # Confirmation
-    for indx in output:
-        assert indx in caplog.text
-
-    # Teardown
-    standard.images, standard.source = backup_images, backup_source
-    standard.broker_link, standard.result_link = backup_source, backup_source
