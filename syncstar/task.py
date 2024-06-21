@@ -24,19 +24,37 @@ or replicated with the express permission of Red Hat, Inc.
 import signal
 import subprocess
 import traceback
+from hashlib import sha256
+from logging.config import dictConfig
 from time import sleep, time
 
 from celery import Celery
 from celery.exceptions import Ignore
+from celery.signals import setup_logging
 
-from syncstar import __projname__, base
+from syncstar import __projname__, base, util
 from syncstar.config import standard
+from syncstar.view import failure, general, success, warning
 
 taskmgmt = Celery(
     __projname__,
     broker=standard.broker_link,
     result_backend=standard.result_link
 )
+
+
+@setup_logging.connect
+def config_logger(*args, **kwargs):
+    dictConfig(standard.logrconf)
+
+
+def format_output(
+        iden: str = "00000000",
+        secs: float = 0.00,
+        head: str = "ZERO",
+        data: str = "ZERO"
+) -> str:
+    return f"[{iden}] [{head}] {secs:.2f}s - {data}"
 
 
 @taskmgmt.task(bind=True)
@@ -49,32 +67,59 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
     # diskfile = "/home/archdesk/tempdeletethisshit.img"
     # diskfile = "/dev/null"
 
+    qant = util.CompletionConfirmation()
     comd = ["dd", f"if={isosfile}", f"of={diskfile}", "status=progress"]
     proc = subprocess.Popen(comd, stderr=subprocess.PIPE)  # noqa : S603
+    iden = sha256(str(self.request.id).encode()).hexdigest()[0:8].upper()
     strt = time()
+    curt = time()
     done = 0
+
+    warning(format_output(iden, curt-strt, "PENDING", f"Flashing '{isosfile}' to '{diskfile}'"))
 
     while proc.poll() is None:
         sleep(1)
         proc.send_signal(signal.SIGUSR1)
+        curt = time()
+
         if diskindx in base.list_drives().keys():
             text = proc.stderr.readline().decode()
+
             if "records out" in text:
                 done = text.split(" ")[0].split("+")[0]
-                print(text)
+                qant.push(done)
+
+                if bool(qant):
+                    success(format_output(iden, curt-strt, "SUCCESS", f"Long running task safely terminated after {standard.compct} checks"))  # noqa : E501
+                    self.update_state(
+                        state="SUCCESS",
+                        meta={
+                            "progress": done,
+                            "time": {
+                                "strt": strt,
+                                "stop": curt
+                            },
+                            "finished": True,
+                        }
+                    )
+                    proc.send_signal(signal.SIGTERM)
+                    raise Ignore()
+
+                general(format_output(iden, curt-strt, "WORKING", text.replace("\n", "")))
                 self.update_state(
                     state="WORKING",
                     meta={
                         "progress": done,
                         "time": {
                             "strt": strt,
-                            "stop": time()
+                            "stop": curt
                         },
                         "finished": False,
                     }
                 )
+
         else:
-            print("DEVICE REMOVED")
+            failure(format_output(iden, curt-strt, "FAILURE", "Unsafe removal of storage device can cause hardware damage"))  # noqa : E501
             self.update_state(
                 state="FAILURE",
                 meta={
@@ -83,7 +128,7 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
                     "progress": done,
                     "time": {
                         "strt": strt,
-                        "stop": time()
+                        "stop": curt
                     },
                     "finished": False
                 }
@@ -91,11 +136,12 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
             proc.send_signal(signal.SIGTERM)
             raise Ignore()
 
+    success(format_output(iden, curt-strt, "SUCCESS", "Please remove the storage device and attempt booting from it"))  # noqa : E501
     return {
         "progress": done,
         "time": {
             "strt": strt,
-            "stop": time(),
+            "stop": curt
         },
         "finished": True,
     }
