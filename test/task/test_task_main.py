@@ -27,60 +27,7 @@ from celery.exceptions import Ignore
 from syncstar.config import standard
 from syncstar.task import wrap_diskdrop
 
-
-class MockStandardError:
-    def __init__(self):
-        pass
-
-    def readline(self):
-        return b"0 records out"
-
-
-class MockProcess:
-    def __init__(self):
-        self.border = 4
-        self.indx = 0
-        self.stderr = MockStandardError()
-
-    def send_signal(self, data):
-        return True
-
-    def poll(self):
-        if self.indx < self.border:
-            self.indx += 1
-            return None
-        else:
-            return True
-
-
-def mock_update_state():
-    return True
-
-
-diskdict = {
-    "AAAAAAAA": {
-        "node": "/dev/null",
-        "name": {
-            "vendor": "AAAAAAAA",
-            "handle": "AAAAAAAA"
-        },
-        "iden": 2048,
-        "size": 2000682496
-    }
-}
-
-
-def disklist_positive():
-    return diskdict
-
-
-def disklist_negative():
-    if standard.plug < standard.tote:
-        standard.plug += 1
-        return diskdict
-    else:
-        standard.plug = 0
-        return {}
+from . import MockProcess, disklist_negative, disklist_positive, imdict, mock_update_state
 
 
 @pytest.mark.parametrize(
@@ -96,31 +43,26 @@ def disklist_negative():
         )
     ]
 )
-def test_task(mocker, work):
+def test_task_main(caplog, mocker, work):
     # Foundation
     backup_imdict, backup_plug, backup_tote = standard.imdict, standard.plug, standard.tote
 
     # Initialization
-    standard.imdict = {
-        "AAAAAAAA": {
-            "name": "AAAAAAAA",
-            "path": "/usr/bin/python",
-            "size": 0
-        }
-    }
+    standard.imdict = imdict
     mocker.patch("celery.Task.update_state", return_value=mock_update_state)
-    mocker.patch("syncstar.config.main_config", return_value=True)
     mocker.patch("subprocess.Popen", return_value=MockProcess())
 
     # Confirmation
     if work:
         mocker.patch("syncstar.base.list_drives", disklist_positive)
         objc = wrap_diskdrop("AAAAAAAA", "AAAAAAAA")
+        assert "Please remove the storage device and attempt booting from it" in caplog.text
         assert objc["time"]["stop"] - objc["time"]["strt"] >= 4
     else:
         mocker.patch("syncstar.base.list_drives", disklist_negative)
         with pytest.raises(Ignore):
             objc = wrap_diskdrop("AAAAAAAA", "AAAAAAAA")
+            assert "Unsafe removal of storage device can cause hardware damage" in caplog.text
             assert objc is None
 
     # Teardown
