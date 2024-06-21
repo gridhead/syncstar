@@ -1,14 +1,22 @@
 [Unit]
 Description=SyncStar Worker Service
 Requires=network.target
-ConditionPathExists=/home/fedohide-origin/.local/bin/celery
 ConditionPathExists=/etc/syncstar/images.yml
+# If the project was installed from COPR, use the following line
+# ConditionPathExists=/usr/bin/syncstar
+# If the project was installed from PyPI, use the following line
+# ConditionPathExists=/home/username/.local/bin/syncstar
 
 [Service]
+# As this service unit will write to storage devices, elevated privileges are required
 User=root
+# As this service unit will write to storage devices, elevated privileges are required
 Group=root
 Environment=SYNCSTAR_ISOSYAML=/etc/syncstar/images.yml
-ExecStart=/home/fedohide-origin/.local/bin/celery -A syncstar.task.taskmgmt worker --loglevel info --concurrency 4
+# If the project was installed from COPR, use the following line
+# ExecStart=/usr/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false cell --proc 8 --compct 8
+# If the project was installed from PyPI, use the following line
+# ExecStart=/home/username/.local/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false cell --proc 8 --compct 8
 
 [Install]
 WantedBy=multi-user.target
