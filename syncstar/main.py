@@ -131,7 +131,26 @@ def apim(port: int = standard.port, period: int = standard.period) -> None:
     help="Start the worker service",
     context_settings={"show_default": True},
 )
-def cell() -> None:
+@option(
+    "-p",
+    "--proc",
+    "proc",
+    type=IntRange(min=4, max=20),
+    default=8,
+    required=False,
+    help="Set the number of concurrent worker tasks allowed"
+)
+@option(
+    "-c",
+    "--compct",
+    "compct",
+    type=IntRange(min=4, max=12),
+    default=8,
+    required=False,
+    help="Set the number of completion checks for termination"
+)
+def cell(proc: int = standard.proc, compct: int = standard.compct) -> None:
     meet_cell()
-    workobjc = task.taskmgmt.Worker()
+    config.cell_config(proc, compct)
+    workobjc = task.taskmgmt.Worker(concurrency=standard.proc)
     workobjc.start()
