@@ -24,11 +24,15 @@ or replicated with the express permission of Red Hat, Inc.
 from logging import getLogger
 from logging.config import dictConfig
 
-port = 8080
-
 repair = False
 
+port = 8080
+
 period = 2
+
+proc = 8
+
+compct = 8
 
 images = ""
 
@@ -62,7 +66,7 @@ logrconf = {
     "formatters": {
         "standard": {
             "format": "%(asctime)s %(message)s",
-            "datefmt": "[%Y-%m-%d %I:%M:%S %z]",
+            "datefmt": "[%Y-%m-%d %H:%M:%S %z]",
         },
     },
     "handlers": {

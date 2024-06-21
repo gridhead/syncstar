@@ -39,6 +39,12 @@ def apim_config(port: int, period: int) -> None:
     standard.period = period
 
 
+def cell_config(proc: int, compct: int) -> None:
+    # Keep the configuration variables served in the command for consumption
+    standard.proc = proc
+    standard.compct = compct
+
+
 def main_config(images: str, source: str, repair: bool) -> None:
     # Check the validity of the images configuration file before saving the contents
     if path.exists(images):
