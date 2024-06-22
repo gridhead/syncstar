@@ -2,7 +2,7 @@
 %global desc Guest operated service for creating bootable USB storage devices at any community conference kiosk
 
 Name:           %{pack}
-Version:        0.1.0a2
+Version:        0.1.0a3
 Release:        1%{?dist}
 Summary:        %{desc}
 
@@ -40,7 +40,7 @@ Requires:       redis
 
 %changelog
 
-* Wed Jun 12 2024 Akashdeep Dhar <t0xic0der@fedoraproject.org> - 0.1.0a1-1
+* Sat Jun 22 2024 Akashdeep Dhar <t0xic0der@fedoraproject.org> - 0.1.0a3-1
 - Add task management module for the service
 - Format the codebase using Ruff
 - Initialize the project codebase
@@ -74,3 +74,12 @@ Requires:       redis
 - Create a restore point to get back to after tests are done
 - Add screenshots of the project frontend
 - Change licensing from `GPL-3.0-or-later` to `AGPL-3.0-or-later`
+- Add RPM specfile for packaging
+- Change from XMLHttpRequest to fetch command
+- Include binary runtime dependencies to the RPM specfile
+- Fix the sources of the regular italicised typeface
+- Start Celery worker from the entrypoint command
+- Report completion status properly for long running tasks
+- Add more tests for the commands
+- Correct the images permalink for the table
+- Gear up for the third alpha release of `0.1.0`
