@@ -1,14 +1,22 @@
 [Unit]
 Description=SyncStar Endpoint Service
 Requires=network.target
-ConditionPathExists=/home/fedohide-origin/.local/bin/syncstar
 ConditionPathExists=/etc/syncstar/images.yml
+# If the project was installed from COPR, use the following line
+# ConditionPathExists=/usr/bin/syncstar
+# If the project was installed from PyPI, use the following line
+# ConditionPathExists=/home/username/.local/bin/syncstar
 
 [Service]
-User=fedohide-origin
-Group=fedohide-origin
+# Replace the following value with the username
+User=username
+# Replace the following value with the username
+Group=username
 Environment=SYNCSTAR_ISOSYAML=/etc/syncstar/images.yml
-ExecStart=/home/fedohide-origin/.local/bin/syncstar --port 8080 --repair false --period 2 --images $SYNCSTAR_ISOSYAML
+# If the project was installed from COPR, use the following line
+# ExecStart=/usr/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false apim --port 8080 --period 2
+# If the project was installed from COPR, use the following line
+# ExecStart=/home/username/.local/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false apim --port 8080 --period 2
 
 [Install]
 WantedBy=multi-user.target

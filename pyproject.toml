@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "syncstar"
-version = "0.1.0a2"
+version = "0.1.0a3"
 description = "Guest operated service for creating bootable USB storage devices at any community conference kiosk"
 authors = ["Akashdeep Dhar <akashdeep.dhar@gmail.com>"]
 license = "AGPL-3.0-or-later"

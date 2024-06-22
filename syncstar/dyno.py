@@ -21,14 +21,12 @@ or replicated with the express permission of Red Hat, Inc.
 """
 
 
-from os.path import abspath
-
 from flask import Flask
 
 from syncstar import __projname__
 
 main = Flask(
     import_name=__projname__,
-    template_folder=abspath("syncstar/frontend/template"),
-    static_folder=abspath("syncstar/frontend/static")
+    template_folder="frontend/template",
+    static_folder="frontend/static"
 )
