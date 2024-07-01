@@ -1,12 +1,17 @@
 %global pack syncstar
-%global desc Guest operated service for creating bootable USB storage devices at any community conference kiosk
 
 Name:           %{pack}
-Version:        0.1.0a3
+Version:        0.1.0a4
 Release:        1%{?dist}
-Summary:        %{desc}
+Summary:        Service for creating bootable USB storage devices at community conference kiosks
 
-License:        AGPL-3.0-or-later
+# The syncstar project is licensed under AGPL-3.0-or-later license, except for the following files
+#
+# MIT license -
+# syncstar/frontend/static/css3/bs.min.css
+# syncstar/frontend/static/jscn/bs.min.js
+
+License:        AGPL-3.0-or-later AND MIT
 Url:            https://github.com/gridhead/%{pack}
 Source0:        %{pypi_source}
 BuildArch:      noarch
@@ -18,13 +23,16 @@ Requires:       util-linux
 Requires:       redis
 
 %description
-%{desc}
+SyncStar lets users create bootable USB storage devices with the operating
+system image of their choice. This application is intended to be deployed on
+kiosk devices and electronic signages where conference guests and booth
+visitors can avail its services.
 
 %prep
 %autosetup -n %{pack}-%{version}
 
 %generate_buildrequires
-%pyproject_buildrequires
+%pyproject_buildrequires -t
 
 %build
 %pyproject_wheel
@@ -33,6 +41,9 @@ Requires:       redis
 %pyproject_install
 %pyproject_save_files %{pack}
 
+%check
+%tox
+
 %files -f %{pyproject_files}
 %doc README.md
 %license LICENSE
@@ -40,46 +51,7 @@ Requires:       redis
 
 %changelog
 
-* Sat Jun 22 2024 Akashdeep Dhar <t0xic0der@fedoraproject.org> - 0.1.0a3-1
-- Add task management module for the service
-- Format the codebase using Ruff
-- Initialize the project codebase
-- Add preliminary code quality checks
-- Fix `TemplateNotFound` errors by replacing absolute paths with relative ones
-- Set up the project documentation
-- Utilize icons to make the frontend more accessible
-- Add service units for SyncStar endpoint and worker
-- Show available images archive on dashboard with font changes
-- Per-type organization in documentation and frontend
-- Add dependencies for mocking functionalities
-- Change test configuration for coverage support
-- Add testing client for endpoint testing
-- Add testcases for the authentication middleware
-- Add testcases for the home endpoint
-- Add testcases for the enroll endpoint
-- Add testcases for the checking endpoint
-- Add testcases for the scanning endpoint
-- Include static assets for testing purposes
-- Add testcases for base utilities
-- Add testcases for images configuration utilities
-- Add testcases for standard configuration utilities
-- Add testcases for command line interface
-- Add testcases for greeting utilities
-- Add testcases for worker utilities
-- Include helper modules for testing
-- Complete the saga of including testcases
-- Make subtle cosmetic changes to the list subtitle
-- Add type hints for a couple of missed out functions
-- Format the spacing between the spacing and imports
-- Create a restore point to get back to after tests are done
-- Add screenshots of the project frontend
-- Change licensing from `GPL-3.0-or-later` to `AGPL-3.0-or-later`
-- Add RPM specfile for packaging
-- Change from XMLHttpRequest to fetch command
-- Include binary runtime dependencies to the RPM specfile
-- Fix the sources of the regular italicised typeface
-- Start Celery worker from the entrypoint command
-- Report completion status properly for long running tasks
-- Add more tests for the commands
-- Correct the images permalink for the table
-- Gear up for the third alpha release of `0.1.0`
+* Sat Jun 22 2024 Akashdeep Dhar <t0xic0der@fedoraproject.org> - 0.1.0a4-1
+- Initial release for SyncStar project
+- More information can be found on https://github.com/gridhead/syncstar/releases/tag/0.1.0
+
