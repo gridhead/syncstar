@@ -1,7 +1,7 @@
 %global pack syncstar
 
 Name:           %{pack}
-Version:        0.1.0a4
+Version:        0.1.0
 Release:        1%{?dist}
 Summary:        Service for creating bootable USB storage devices at community conference kiosks
 
@@ -51,7 +51,6 @@ visitors can avail its services.
 
 %changelog
 
-* Sat Jun 22 2024 Akashdeep Dhar <t0xic0der@fedoraproject.org> - 0.1.0a4-1
+* Tue Jul 02 2024 Akashdeep Dhar <t0xic0der@fedoraproject.org> - 0.1.0-1
 - Initial release for SyncStar project
 - More information can be found on https://github.com/gridhead/syncstar/releases/tag/0.1.0
-
