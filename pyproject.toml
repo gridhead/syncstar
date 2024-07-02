@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "syncstar"
-version = "0.1.0a4"
+version = "0.1.0a5"
 description = "Service for creating bootable USB storage devices at community conference kiosks"
 authors = ["Akashdeep Dhar <akashdeep.dhar@gmail.com>"]
 license = "AGPL-3.0-or-later"
@@ -8,21 +8,27 @@ maintainers = ["Akashdeep Dhar <akashdeep.dhar@gmail.com>"]
 readme = "README.md"
 homepage = "https://github.com/gridhead/syncstar"
 repository = "https://github.com/gridhead/syncstar"
-documentation = "https://github.com/gridhead/syncstar/blob/main/README.md"
-keywords = [""]
+documentation = "https://github.com/gridhead/syncstar/wiki"
+keywords = ["conference", "fedora"]
 classifiers= [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: POSIX :: Linux",
+    "Environment :: Web Environment",
+    "Environment :: Console",
     "Topic :: System :: Operating System",
-    "Topic :: Security",
-    "Topic :: Security :: Cryptography",
     "Topic :: System :: Networking",
-    "Topic :: System :: Networking :: Monitoring",
+    "Topic :: System :: Monitoring",
+    "Topic :: System :: Hardware :: Universal Serial Bus (USB)",
+    "Topic :: System :: Hardware :: Universal Serial Bus (USB) :: Mass Storage",
 ]
 
 [tool.poetry.dependencies]
