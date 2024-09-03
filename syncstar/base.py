@@ -38,7 +38,7 @@ def show_time() -> str:
 def retrieve_disk_size(device: str) -> int:
     try:
         return int(
-            subprocess.check_output(
+            subprocess.check_output(  # noqa: S603
                 ["lsblk", "-b", "-n", "-o", "SIZE", f"{device}"]  # noqa : S603, S607
             ).decode().split("\n")[0])
     except subprocess.CalledProcessError:
