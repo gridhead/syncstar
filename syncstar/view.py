@@ -27,16 +27,36 @@ from syncstar.config import standard
 
 
 def success(message) -> None:
+    """
+    Log the message in the "SUCCESS" format
+
+    :return:
+    """
     standard.logger.info(style(message, fg="green", bold=True))
 
 
 def failure(message) -> None:
+    """
+    Log the message in the "FAILURE" format
+
+    :return:
+    """
     standard.logger.error(style(message, fg="red", bold=True))
 
 
 def warning(message) -> None:
+    """
+    Log the message in the "WARNING" format
+
+    :return:
+    """
     standard.logger.warning(style(message, fg="yellow", bold=True))
 
 
 def general(message) -> None:
+    """
+    Log the message in the "GENERAL" format
+
+    :return:
+    """
     standard.logger.info(message)

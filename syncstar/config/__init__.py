@@ -30,22 +30,33 @@ from syncstar import view
 from syncstar.config import standard
 
 
-def apim_config(port: int, period: int) -> None:
-    # Generate a secret code for the frontend to authenticate with the service
-    standard.code = urandom(8).hex().upper()
+def apim_config(port: int, username: str, password: str) -> None:
+    """
+    Keep the configuration variables served in the command for consumption
 
-    # Keep the configuration variables served in the command for consumption
+    :return:
+    """
     standard.port = port
-    standard.period = period
+    standard.username = username
+    standard.password = password
 
 
-def cell_config(proc: int, compct: int) -> None:
-    # Keep the configuration variables served in the command for consumption
+def cell_config(proc: int, poll: int) -> None:
+    """
+    Keeps the configuration variables served in the command for consumption
+
+    :return:
+    """
     standard.proc = proc
-    standard.compct = compct
+    standard.poll = poll
 
 
 def main_config(images: str, source: str, repair: bool) -> None:
+    """
+    Store the configuration for the entire application before the beginning
+
+    :return:
+    """
     # Check the validity of the images configuration file before saving the contents
     if path.exists(images):
         with open(images) as yamlfile:
@@ -62,6 +73,7 @@ def main_config(images: str, source: str, repair: bool) -> None:
                             exit(1)
                     standard.images = images
                     standard.imdict = imdict
+                    standard.secret = urandom(32).hex().upper()
                 else:
                     view.failure("Empty images configuration file detected")
                     exit(1)

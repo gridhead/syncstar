@@ -24,16 +24,21 @@ or replicated with the express permission of Red Hat, Inc.
 from functools import wraps
 from typing import Callable
 
-from flask import abort
+from flask import abort, request, session
 
 from syncstar.config import standard
 
 
 def checkpoint(path: Callable) -> Callable:
+    """
+    Confirm if the session is valid before allowing the access to the endpoints
+
+    :return:
+    """
     @wraps(path)
     def authenticate(*args, **kwargs) -> Callable:
-        rqstcode = kwargs.get("rqstcode")
-        if rqstcode != standard.code:
-            abort(403)
-        return path(*args, **kwargs)
+        username, password = request.headers.get("username"), request.headers.get("password")
+        if ("username" in session and "password" in session) or (username == standard.username and password == standard.password):  # noqa: E501
+            return path(*args, **kwargs)
+        return abort(401, "Invalid credentials")
     return authenticate

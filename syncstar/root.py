@@ -24,29 +24,47 @@ or replicated with the express permission of Red Hat, Inc.
 from os import urandom
 from time import time
 
-from flask import abort, render_template
+from flask import Blueprint, Response, abort, jsonify, render_template, request, session
 
-from syncstar import __versdata__, base, task
+from syncstar import base, task
 from syncstar.auth import checkpoint
-from syncstar.config import manifest, standard
-from syncstar.dyno import main
+from syncstar.config import standard
+
+root = Blueprint("root", __name__)
 
 
-@main.route("/", methods=["GET"])
+@root.route("/", methods=["GET"])
 def home() -> str:
-    return render_template(
-        "home.html",
-        versdata=__versdata__,
-        rqstcode=standard.code,
-        timesecs=standard.period,
-        icondict=manifest.icondict,
-        isosdict=standard.imdict,
-    )
+    """
+    Handles the `/` endpoint to navigate the users to the application landing page
+
+    :return: HTTP response
+    """
+    return render_template("home.html")
 
 
-@main.route("/kick/<rqstcode>/<diskindx>/<isosindx>", methods=["GET"])
+@root.route("/sign", methods=["POST"])
+def sign() -> tuple[Response, int]:
+    """
+    Handles the `/sign` endpoint to create relevant session and provide a response
+
+    :return: HTTP response
+    """
+    username, password = request.headers.get("username"), request.headers.get("password")
+    if username == standard.username and password == standard.password:
+        session["username"], session["password"] = username, password
+        return jsonify({"data": "AJAO"}), 200
+    return jsonify({"data": "NOPE"}), 401
+
+
+@root.route("/sync/<diskindx>/<isosindx>", methods=["POST"])
 @checkpoint
-def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
+def sync(diskindx: str, isosindx: str) -> dict | Response:
+    """
+    Handles the `/sync` endpoint to request device creation and provide a response
+
+    :return: HTTP response
+    """
     iterdict = base.list_drives()
     if diskindx in iterdict:
         if isosindx in standard.imdict:
@@ -65,9 +83,7 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
                         "rcrd": 0,
                     }
                     standard.lockls.append(diskindx)
-                    return {
-                        "location": unit.id,
-                    }
+                    return {"location": unit.id}, 201
                 else:
                     abort(422, "Insufficient capacity")
             else:
@@ -78,32 +94,14 @@ def kick(rqstcode: str, diskindx: str, isosindx: str) -> dict:
         abort(404, f"No such disk: {diskindx}")
 
 
-@main.route("/scan/<rqstcode>/<diskindx>", methods=["GET"])
+@root.route("/read", methods=["GET"])
 @checkpoint
-def scan(rqstcode: str, diskindx: str) -> dict:
-    iterdict = base.list_drives()
-    if diskindx in iterdict:
-        if diskindx not in standard.lockls:
-            imdict = standard.imdict
-            for indx in imdict:
-                if imdict[indx]["size"] < iterdict[diskindx]["size"]:
-                    imdict[indx]["bool"] = True
-                else:
-                    imdict[indx]["bool"] = False
-            return {
-                "indx": diskindx,
-                "disk": standard.dkdict[diskindx],
-                "isos": imdict,
-            }
-        else:
-            abort(400, f"Disk locked: {diskindx}")
-    else:
-        abort(404, f"No such disk: {diskindx}")
+def read() -> dict:
+    """
+    Handles the `/read` endpoint to fetch all relevant data and provide a response
 
-
-@main.route("/read/<rqstcode>", methods=["GET"])
-@checkpoint
-def read(rqstcode: str) -> dict:
+    :return: HTTP response
+    """
     joblst = {}
     diskdict = base.list_drives()
 
@@ -156,14 +154,19 @@ def read(rqstcode: str) -> dict:
 
     return {
         "time": base.show_time(),
+        "file": standard.imdict,
         "devs": diskdict,
         "jobs": joblst,
     }
 
 
-def work() -> None:
-    main.run(
-        host="0.0.0.0",  # noqa : S104
-        port=standard.port,
-        debug=standard.repair
-    )
+@root.route("/exit", methods=["POST"])
+@checkpoint
+def exit() -> tuple[Response, int]:
+    """
+    Handles the `/exit` endpoint to clear the user session and provide a response
+
+    :return: HTTP response
+    """
+    session.clear()
+    return jsonify({"data": "OKAY"}), 200

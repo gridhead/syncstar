@@ -23,8 +23,6 @@ or replicated with the express permission of Red Hat, Inc.
 
 import pytest
 
-from syncstar.config import manifest
-
 
 @pytest.mark.parametrize(
     "_",
@@ -38,6 +36,3 @@ from syncstar.config import manifest
 def test_home(client, _):
     response = client.get("/")
     assert response.status_code == 200
-    for indx, data in manifest.icondict.items():
-        assert indx in response.data.decode()
-        assert data in response.data.decode()

@@ -29,7 +29,7 @@ class CompletionConfirmation:
     Helper class for confirming if a long running task has completed
     """
     def __init__(self):
-        self.qant = [0 for _ in range(standard.compct)]
+        self.qant = [0 for _ in range(standard.poll)]
 
     def __bool__(self) -> bool:
         return len(set(self.qant)) == 1
