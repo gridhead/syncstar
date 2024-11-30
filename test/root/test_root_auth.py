@@ -21,39 +21,43 @@ or replicated with the express permission of Red Hat, Inc.
 """
 
 
+from json import loads
+
 import pytest
 
 from syncstar.config import standard
 
 
 @pytest.mark.parametrize(
-    "code, text, word",
+    "code, text, username, password",
     [
         pytest.param(
-            403,
-            ["403", "Forbidden"],
+            401,
+            "NOPE",
+            "CODEZEROEXISTENT",
             "CODEZEROEXISTENT",
             id="AUTH Middleware - 403 Unauthorized",
         ),
         pytest.param(
             200,
-            ["devs", "jobs"],
-            standard.code,
+            "AJAO",
+            standard.username,
+            standard.password,
             id="AUTH Middleware - 200 OK",
         )
     ]
 )
-def test_auth(client, code, text, word):
-    # Foundation
-    backup_hsdict = standard.hsdict
-
+def test_auth(client, mocker, code, text, username, password):
     # Initialization
-    response = client.get(f"/read/{word}")
+    mocker.patch("syncstar.config.standard.username", standard.username)
+    mocker.patch("syncstar.config.standard.password", standard.password)
 
     # Confirmation
+    head = {"username": username, "password": password}
+    response = client.post("/sign", headers=head)
     assert response.status_code == code
-    for indx in text:
-        assert indx in response.data.decode()
+    assert loads(response.data.decode())["data"] == text
 
     # Teardown
-    standard.hsdict = backup_hsdict
+    response = client.post("/exit")
+    assert response.status_code == code

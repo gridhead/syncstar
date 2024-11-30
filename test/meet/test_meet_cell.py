@@ -52,19 +52,13 @@ from syncstar.main import meet_cell
         ),
     ]
 )
-def test_meet_cell(caplog, images, source, output):
-    # Foundation
-    backup_images, backup_source = standard.images, standard.source
-
+def test_meet_cell(caplog, mocker, images, source, output):
     # Initialization
-    standard.images = images
-    standard.broker_link, standard.result_link = source, source
+    mocker.patch("syncstar.config.standard.images", images)
+    mocker.patch("syncstar.config.standard.broker_link", source)
+    mocker.patch("syncstar.config.standard.result_link", source)
     meet_cell()
 
     # Confirmation
     for indx in output:
         assert indx in caplog.text
-
-    # Teardown
-    standard.images, standard.source = backup_images, backup_source
-    standard.broker_link, standard.result_link = backup_source, backup_source

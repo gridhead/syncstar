@@ -37,15 +37,15 @@ from syncstar.config import cell_config, standard
 )
 def test_comd_cell(_):
     # Foundation
-    backup_proc, backup_compct = standard.proc, standard.compct
-    subval_proc, subval_compct = 8, 8
+    backup_proc, backup_poll = standard.proc, standard.poll
+    subval_proc, subval_poll = 8, 8
 
     # Initialization
-    cell_config(subval_proc, subval_compct)
+    cell_config(subval_proc, subval_poll)
 
     # Confirmation
     assert standard.proc == subval_proc
-    assert standard.compct == subval_compct
+    assert standard.poll == subval_poll
 
     # Teardown
-    standard.proc, standard.compct = backup_proc, backup_compct
+    standard.proc, standard.poll = backup_proc, backup_poll

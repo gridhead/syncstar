@@ -38,12 +38,15 @@ from syncstar.main import main
                 "Start the frontend service",
                 "Options:",
                 "-p, --port INTEGER RANGE",
-                "-t, --period INTEGER RANGE",
+                "-u, --username TEXT",
+                "-w, --password TEXT",
                 "--help",
                 "Set the port value for the service frontend",
-                "endpoints  [default: 8080; 64<=x<=65535]",
-                "Set the period after which the info will be",
-                "refreshed  [default: 2; 2<=x<=30]",
+                "endpoints.  [default: 8080; 64<=x<=65535]",
+                "Set the username for service authentication.",
+                "[default: root]",
+                "Set the password for service authentication.",
+                "[default: root]",
                 "Show this message and exit."
             ],
             id="MAIN Function - APIM - Basic help"
@@ -55,8 +58,14 @@ from syncstar.main import main
                 "Usage: syncstar cell [OPTIONS]",
                 "Start the worker service",
                 "Options:",
+                "-p, --proc INTEGER RANGE",
+                "-c, --poll INTEGER RANGE",
                 "--help",
-                "Show this message and exit."
+                "Set the number of concurrent worker tasks allowed.",
+                "[default: 8; 4<=x<=20]",
+                "Set the number of completion checks for termination.",
+                "[default: 8; 4<=x<=12]",
+                "Show this message and exit.",
             ],
             id="MAIN Function - CELL - Basic help"
         )

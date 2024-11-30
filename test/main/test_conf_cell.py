@@ -31,7 +31,7 @@ from syncstar.main import main
     "cmdl, code, text",
     [
         pytest.param(
-            "--images /etc/ --source redis://localhost:6379/0 --repair true cell --proc 0 --compct 8",
+            "--images /etc/ --source redis://localhost:6379/0 --repair true cell --proc 0 --poll 8",
             2,
             [
                 "Usage: syncstar cell [OPTIONS]",
@@ -41,14 +41,14 @@ from syncstar.main import main
             id="MAIN Function - CELL Command - Incorrect input - PROC"
         ),
         pytest.param(
-            "--images /etc/ --source redis://localhost:6379/0 --repair true cell --proc 8 --compct 0",
+            "--images /etc/ --source redis://localhost:6379/0 --repair true cell --proc 8 --poll 0",
             2,
             [
                 "Usage: syncstar cell [OPTIONS]",
                 "Try 'syncstar cell --help' for help.",
-                "Error: Invalid value for '-c' / '--compct': 0 is not in the range 4<=x<=12.",
+                "Error: Invalid value for '-c' / '--poll': 0 is not in the range 4<=x<=12.",
             ],
-            id="MAIN Function - CELL Command - Incorrect input - COMPCT"
+            id="MAIN Function - CELL Command - Incorrect input - POLL"
         ),
     ]
 )

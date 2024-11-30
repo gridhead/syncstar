@@ -21,6 +21,8 @@ or replicated with the express permission of Red Hat, Inc.
 """
 
 
+from os import urandom
+
 import pytest
 
 from syncstar.config import apim_config, standard
@@ -35,18 +37,18 @@ from syncstar.config import apim_config, standard
         )
     ]
 )
-def test_comd_apim(_):
+def test_comd_apim(_, mocker):
     # Foundation
-    backup_code, backup_port, backup_period = standard.code, standard.port, standard.period
-    subval_code, subval_port, subval_period = "0000000000000000", 0, 0  # noqa: F841
+    backup_port, backup_username, backup_password = standard.port, standard.username, standard.password
+    port, username, password = 8484, urandom(8).hex().upper(), urandom(8).hex().upper()
 
     # Initialization
-    apim_config(subval_port, subval_period)
+    apim_config(port, username, password)
 
     # Confirmation
-    assert len(standard.code) == 16
-    assert standard.port == subval_port
-    assert standard.period == subval_period
+    assert port == standard.port
+    assert username == standard.username
+    assert password == standard.password
 
     # Teardown
-    standard.code, standard.port, standard.period = backup_code, backup_port, backup_period
+    standard.port, standard.username, standard.password = backup_port, backup_username, backup_password

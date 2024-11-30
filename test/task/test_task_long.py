@@ -40,11 +40,8 @@ from . import MockCompletionConfirmation, MockProcess, disklist_positive, imdict
     ]
 )
 def test_task_long(caplog, mocker, _):
-    # Foundation
-    backup_imdict, backup_plug, backup_tote = standard.imdict, standard.plug, standard.tote
-
     # Initialization
-    standard.imdict = imdict
+    mocker.patch("syncstar.config.standard.imdict", imdict)
     mocker.patch("syncstar.util.CompletionConfirmation", MockCompletionConfirmation)
     mocker.patch("celery.Task.update_state", return_value=mock_update_state)
     mocker.patch("subprocess.Popen", return_value=MockProcess())
@@ -53,8 +50,5 @@ def test_task_long(caplog, mocker, _):
     # Confirmation
     with pytest.raises(Ignore):
         objc = wrap_diskdrop("AAAAAAAA", "AAAAAAAA")
-        assert f"Long running task safely terminated after {standard.compct} checks" in caplog.text
+        assert f"Long running task safely terminated after {standard.poll} checks" in caplog.text
         assert objc["time"]["stop"] - objc["time"]["strt"] >= 1
-
-    # Teardown
-    standard.imdict, standard.plug, standard.tote = backup_imdict, backup_plug, backup_tote
