@@ -1,0 +1,25 @@
+---
+name: syncstar
+on: [push, pull_request]
+jobs:
+  ci-lint:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the base dependencies
+        run: |
+             dnf install npm --setopt=install_weak_deps=False --assumeyes
+
+      - name: Install the project libraries
+        working-directory: /__w/syncstar/syncstar/frontend
+        run: |
+             npm install
+
+      - name: Check the quality of the code
+        working-directory: /__w/syncstar/syncstar/frontend
+        run: |
+             npm run lint
