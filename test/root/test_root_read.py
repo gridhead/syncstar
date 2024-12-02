@@ -32,70 +32,106 @@ from . import MockAsyncResult
 
 
 @pytest.mark.parametrize(
-    "mood, objc, jobs",
+    "mood",
     [
         pytest.param(
             "PENDING",
-            MockAsyncResult(iden="AAAAAAAA", state="PENDING", info={"time": {"strt": time(), "stop": time()}, "finished": False, "progress": 0}),
-            {"AAAAAAAA": {"disk": "AAAAAAAA", "isos": "AAAAAAAA", "time": {"strt": time(), "stop": time(), }, "task": "AAAAAAAA", "rcrd": 0}},
             id="READ Endpoint - Jobs listing - PENDING"
         ),
         pytest.param(
             "FAILURE",
-            MockAsyncResult(iden="AAAAAAAA", state="FAILURE", info={"time": {"strt": time(), "stop": time()}, "finished": True, "progress": 0}),
-            {"AAAAAAAA": {"disk": "AAAAAAAA", "isos": "AAAAAAAA", "time": {"strt": time(), "stop": time(), }, "task": "AAAAAAAA", "rcrd": 0}},
             id="READ Endpoint - Jobs listing - FAILURE"
         ),
         pytest.param(
             "SUCCESS",
-            MockAsyncResult(iden="AAAAAAAA", state="SUCCESS", info={"time": {"strt": time(), "stop": time()}, "finished": True, "progress": 0}),
-            {"AAAAAAAA": {"disk": "AAAAAAAA", "isos": "AAAAAAAA", "time": {"strt": time(), "stop": time(), }, "task": "AAAAAAAA", "rcrd": 0}},
             id="READ Endpoint - Jobs listing - SUCCESS"
         ),
         pytest.param(
             "WORKING",
-            MockAsyncResult(iden="AAAAAAAA", state="WORKING", info={"time": {"strt": time(), "stop": time()}, "finished": False, "progress": 0}),
-            {"AAAAAAAA": {"disk": "AAAAAAAA", "isos": "AAAAAAAA", "time": {"strt": time(), "stop": time(), }, "task": "AAAAAAAA", "rcrd": 0}},
             id="READ Endpoint - Jobs listing - WORKING"
         ),
     ]
 )
-def test_read(client, mocker, mood, objc, jobs):
-    # Foundation
-    backup_joblst, backup_imdict, backup_hsdict, backup_lockls = standard.joblst, standard.imdict, standard.hsdict, standard.lockls
-
+def test_read(client, mocker, mood):
     # Initialization
-    standard.joblst = jobs
-    standard.imdict = {
-        "AAAAAAAA": {
-            "path": "AAAAAAAA",
-            "name": "AAAAAAAA",
-            "type": "AAAAAAAA",
-            "size": 0,
+    mocker.patch(
+        "syncstar.config.standard.hsdict",
+        {
+            "ABCD1234": {
+                "iden": 2048,
+                "name": {
+                    "handle": "ABCD1234",
+                    "vendor": "ABCD1234"
+                },
+                "node": "/dev/null",
+                "size": 2000682496
+            }
         }
-    }
-    standard.hsdict = disk = {
-        "AAAAAAAA": {
-            "node": "/dev/null",
-            "name": {
-                "vendor": "AAAAAAAA",
-                "handle": "AAAAAAAA"
+    )
+    mocker.patch("syncstar.base.list_drives", return_value=standard.hsdict)
+
+    mocker.patch(
+        "syncstar.config.standard.imdict",
+        {
+            "ABCD1234": {
+                "path": "ABCD1234",
+                "name": "ABCD1234",
+                "type": "ABCD1234",
+                "size": 0,
+            }
+        }
+    )
+
+    period = time()
+    mocker.patch(
+        "syncstar.config.standard.joblst",
+        {
+            "ABCD1234": {
+                "disk": "ABCD1234",
+                "isos": "ABCD1234",
+                "time": {
+                    "strt": period,
+                    "stop": period
+                },
+                "task": "ABCD1234",
+                "rcrd": 0
+            }
+        }
+    )
+
+    mocker.patch("syncstar.task.wrap_diskdrop.AsyncResult",
+        return_value=MockAsyncResult(
+        iden="ABCD1234",
+        state=mood,
+        info={
+            "time": {
+                "strt": period,
+                "stop": period
             },
-            "iden": 2048,
-            "size": 2000682496
+            "finished": True if mood in ["SUCCESS", "FAILURE"] else False,
+            "progress": 0
         }
-    }
-    standard.lockls = [
-        "AAAAAAAA"
+    ))
+
+    lockls = [
+        "ABCD1234"
     ]
-    mocker.patch("syncstar.base.list_drives", return_value=disk)
-    mocker.patch("syncstar.task.wrap_diskdrop.AsyncResult", return_value=objc)
-    response = client.get(f"/read/{standard.code}")
+    mocker.patch("syncstar.config.standard.lockls", lockls)
+
+    mocker.patch("syncstar.config.standard.username", "username")
+    mocker.patch("syncstar.config.standard.password", "password")
+
+    head = {"username": standard.username, "password": standard.password}
+    response = client.post("/sign", headers=head)
+    assert response.status_code == 200
 
     # Confirmation
-    assert loads(response.data.decode())["devs"] == disk
+    response = client.get("/read")
     assert response.status_code == 200
-    assert standard.hsdict == disk
+    assert loads(response.data.decode())["devs"] == standard.hsdict
+    assert loads(response.data.decode())["file"] == standard.imdict
+    assert loads(response.data.decode())["file"].keys() == standard.joblst.keys()
 
     # Teardown
-    standard.joblst, standard.imdict, standard.hsdict, standard.lockls = backup_joblst, backup_imdict, backup_hsdict, backup_lockls
+    response = client.post("/exit")
+    assert response.status_code == 200

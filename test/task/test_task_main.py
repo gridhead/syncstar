@@ -24,7 +24,6 @@ or replicated with the express permission of Red Hat, Inc.
 import pytest
 from celery.exceptions import Ignore
 
-from syncstar.config import standard
 from syncstar.task import wrap_diskdrop
 
 from . import MockProcess, disklist_negative, disklist_positive, imdict, mock_update_state
@@ -44,11 +43,8 @@ from . import MockProcess, disklist_negative, disklist_positive, imdict, mock_up
     ]
 )
 def test_task_main(caplog, mocker, work):
-    # Foundation
-    backup_imdict, backup_plug, backup_tote = standard.imdict, standard.plug, standard.tote
-
     # Initialization
-    standard.imdict = imdict
+    mocker.patch("syncstar.config.standard.imdict", imdict)
     mocker.patch("celery.Task.update_state", return_value=mock_update_state)
     mocker.patch("subprocess.Popen", return_value=MockProcess())
 
@@ -64,6 +60,3 @@ def test_task_main(caplog, mocker, work):
             objc = wrap_diskdrop("AAAAAAAA", "AAAAAAAA")
             assert "Unsafe removal of storage device can cause hardware damage" in caplog.text
             assert objc is None
-
-    # Teardown
-    standard.imdict, standard.plug, standard.tote = backup_imdict, backup_plug, backup_tote

@@ -28,43 +28,39 @@ from syncstar.main import meet_apim
 
 
 @pytest.mark.parametrize(
-    "code, period, repair, output",
+    "username, password, repair, output",
     [
         pytest.param(
-            standard.code,
-            standard.period,
+            standard.username,
+            standard.password,
             standard.repair,
             [
-                f"Use the secret code '{standard.code}' to authenticate with the service",
-                f"Information on the frontend would be refreshed every after {standard.period} second(s)",
+                f"Authentication username. '{standard.username}'",
+                f"Authentication username. '{standard.password}'",
                 f"Debug mode is {'enabled' if standard.repair else 'disabled'}",
             ],
             id="MEET_APIM Function - Standard parameters"
         ),
         pytest.param(
-            "XXXXXXXXXXXXXXXX",
-            10,
+            "ABCD1234",
+            "ABCD1234",
             True,
             [
-                "Use the secret code 'XXXXXXXXXXXXXXXX' to authenticate with the service",
-                "Information on the frontend would be refreshed every after 10 second(s)",
+                "Authentication username. 'ABCD1234'",
+                "Authentication username. 'ABCD1234'",
                 "Debug mode is enabled",
             ],
             id="MEET_APIM Function - Modified parameters"
         ),
     ]
 )
-def test_meet_apim(caplog, code, period, repair, output):
-    # Foundation
-    backup_code, backup_period, backup_repair = standard.code, standard.period, standard.repair
-
+def test_meet_apim(caplog, mocker, username, password, repair, output):
     # Initialization
-    standard.code, standard.period, standard.repair = code, period, repair
-    meet_apim()
+    mocker.patch("syncstar.config.standard.username", username)
+    mocker.patch("syncstar.config.standard.password", password)
+    mocker.patch("syncstar.config.standard.repair", repair)
 
     # Confirmation
+    meet_apim()
     for indx in output:
         assert indx in caplog.text
-
-    # Teardown
-    standard.code, standard.period, standard.repair = backup_code, backup_period, backup_repair

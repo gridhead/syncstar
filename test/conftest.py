@@ -28,4 +28,4 @@ from syncstar.dyno import main
 
 @pytest.fixture(scope="function")
 def client():
-    return main.test_client()
+    return main().test_client()

@@ -31,7 +31,7 @@ from syncstar.main import main
     "cmdl, code, text",
     [
         pytest.param(
-            "--images /etc/ --source redis://localhost:6379/0 --repair true apim --port 0 --period 2",
+            "--images /etc/ --source redis://localhost:6379/0 --repair true apim --port 0 --username username --password password",
             2,
             [
                 "Usage: syncstar apim [OPTIONS]",
@@ -41,14 +41,20 @@ from syncstar.main import main
             id="MAIN Function - APIM Command - Incorrect input - PORT"
         ),
         pytest.param(
-            "--images /etc/ --source redis://localhost:6379/0 --repair true apim --port 8080 --period 0",
+            "--images /etc/ --source redis://localhost:6379/0 --repair true apim --port 8080 --username",
             2,
             [
-                "Usage: syncstar apim [OPTIONS]",
-                "Try 'syncstar apim --help' for help.",
-                "Error: Invalid value for '-t' / '--period': 0 is not in the range 2<=x<=30.",
+                "Error: Option '--username' requires an argument.",
             ],
-            id="MAIN Function - APIM Command - Incorrect input - PERIOD"
+            id="MAIN Function - APIM Command - Incorrect input - USERNAME"
+        ),
+        pytest.param(
+            "--images /etc/ --source redis://localhost:6379/0 --repair true apim --port 8080 --password",
+            2,
+            [
+                "Error: Option '--password' requires an argument.",
+            ],
+            id="MAIN Function - APIM Command - Incorrect input - PASSWORD"
         ),
     ]
 )

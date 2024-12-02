@@ -90,7 +90,7 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
                 qant.push(done)
 
                 if bool(qant):
-                    success(format_output(iden, curt-strt, "SUCCESS", f"Long running task safely terminated after {standard.compct} checks"))  # noqa : E501
+                    success(format_output(iden, curt-strt, "SUCCESS", f"Long running task safely terminated after {standard.poll} checks"))  # noqa : E501
                     self.update_state(
                         state="SUCCESS",
                         meta={

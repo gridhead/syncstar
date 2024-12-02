@@ -32,30 +32,30 @@ from . import MockTaskResult
     "code, item, isos, objc, size, lock, text",
     [
         pytest.param(
-            200,
-            "AAAAAAAA",
-            "AAAAAAAA",
-            MockTaskResult(id="AAAAAAAA"),
+            201,
+            "ABCD1234",
+            "ABCD1234",
+            MockTaskResult(id="ABCD1234"),
             True,
             [],
-            ["location", "AAAAAAAA"],
-            id="KICK Endpoint - 200 OK",
+            ["location", "ABCD1234"],
+            id="KICK Endpoint - 201 Created",
         ),
         pytest.param(
             400,
-            "AAAAAAAA",
-            "AAAAAAAA",
-            MockTaskResult(id="AAAAAAAA"),
+            "ABCD1234",
+            "ABCD1234",
+            MockTaskResult(id="ABCD1234"),
             True,
-            ["AAAAAAAA"],
+            ["ABCD1234"],
             ["Bad", "Request", "Disk", "locked"],
             id="KICK Endpoint - 400 Bad Request - Disk locked",
         ),
         pytest.param(
             422,
-            "AAAAAAAA",
-            "AAAAAAAA",
-            MockTaskResult(id="AAAAAAAA"),
+            "ABCD1234",
+            "ABCD1234",
+            MockTaskResult(id="ABCD1234"),
             False,
             [],
             ["Unprocessable", "Entity", "Insufficient", "capacity"],
@@ -64,8 +64,8 @@ from . import MockTaskResult
         pytest.param(
             404,
             "CODEZERO",
-            "AAAAAAAA",
-            MockTaskResult(id="AAAAAAAA"),
+            "ABCD1234",
+            MockTaskResult(id="ABCD1234"),
             True,
             [],
             ["Not", "Found", "such", "disk"],
@@ -73,9 +73,9 @@ from . import MockTaskResult
         ),
         pytest.param(
             404,
-            "AAAAAAAA",
+            "ABCD1234",
             "CODEZERO",
-            MockTaskResult(id="AAAAAAAA"),
+            MockTaskResult(id="ABCD1234"),
             True,
             [],
             ["Not", "Found", "such", "image"],
@@ -83,39 +83,52 @@ from . import MockTaskResult
         )
     ]
 )
-def test_kick(client, mocker, code, item, isos, objc, size, lock, text):
-    # Foundation
-    backup_imdict, backup_lockls = standard.imdict, standard.lockls
-
+def test_sync(client, mocker, code, item, isos, objc, size, lock, text):
     # Initialization
-    standard.imdict = {
-        "AAAAAAAA": {
-            "path": "AAAAAAAA",
-            "name": "AAAAAAAA",
-            "type": "AAAAAAAA",
-            "size": 0 if size else 2**40,
+    mocker.patch(
+        "syncstar.config.standard.imdict",
+        {
+            "ABCD1234": {
+                "path": "ABCD1234",
+                "name": "ABCD1234",
+                "type": "ABCD1234",
+                "size": 0 if size else 2**40,
+            }
         }
-    }
-    disk = {
-        "AAAAAAAA": {
-            "node": "/dev/null",
-            "name": {
-                "vendor": "AAAAAAAA",
-                "handle": "AAAAAAAA"
-            },
-            "iden": 2048,
-            "size": 2000682496
+    )
+
+    mocker.patch(
+        "syncstar.config.standard.hsdict",
+        {
+            "ABCD1234": {
+                "iden": 2048,
+                "name": {
+                    "handle": "ABCD1234",
+                    "vendor": "ABCD1234"
+                },
+                "node": "/dev/null",
+                "size": 2000682496
+            }
         }
-    }
-    standard.lockls = lock
-    mocker.patch("syncstar.base.list_drives", return_value=disk)
+    )
+    mocker.patch("syncstar.base.list_drives", return_value=standard.hsdict)
+
+    mocker.patch("syncstar.config.standard.lockls", lock)
     mocker.patch("syncstar.task.wrap_diskdrop.apply_async", return_value=objc)
-    response = client.get(f"/kick/{standard.code}/{item}/{isos}")
+
+    mocker.patch("syncstar.config.standard.username", "username")
+    mocker.patch("syncstar.config.standard.password", "password")
+
+    head = {"username": standard.username, "password": standard.password}
+    response = client.post("/sign", headers=head)
+    assert response.status_code == 200
 
     # Confirmation
+    response = client.post(f"/sync/{item}/{isos}")
     assert response.status_code == code
     for indx in text:
         assert indx in response.data.decode()
 
     # Teardown
-    standard.imdict, standard.lockls = backup_imdict, backup_lockls
+    response = client.post("/exit")
+    assert response.status_code == 200

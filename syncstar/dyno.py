@@ -24,9 +24,30 @@ or replicated with the express permission of Red Hat, Inc.
 from flask import Flask
 
 from syncstar import __projname__
+from syncstar.config import standard
+from syncstar.root import root
 
-main = Flask(
-    import_name=__projname__,
-    template_folder="frontend/template",
-    static_folder="frontend/static"
-)
+
+def main():
+    serv = Flask(
+        import_name=__projname__,
+        template_folder="frontend",
+        static_folder="frontend/assets"
+    )
+    serv.register_blueprint(root)
+    serv.secret_key = standard.secret
+    return serv
+
+
+def work() -> None:
+    """
+    Starts the application service on all interfaces with the defined config data
+
+    :return:
+    """
+    serv = main()
+    serv.run(
+        host="0.0.0.0",  # noqa : S104
+        port=standard.port,
+        debug=standard.repair
+    )

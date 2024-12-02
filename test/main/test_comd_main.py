@@ -50,9 +50,53 @@ from syncstar.main import main
             ],
             id="MAIN Function - Invalid command"
         ),
+        pytest.param(
+            "--images zeroexistent --source redis://localhost:6379/0 --repair true apim",
+            2,
+            [
+                "Usage: syncstar [OPTIONS] COMMAND [ARGS]...",
+                "Try 'syncstar --help' for help.",
+                "Error: Invalid value for '-i' / '--images': Path 'zeroexistent' does not exist.",
+            ],
+            id="MAIN Function - Invalid path"
+        ),
+        pytest.param(
+            "--images",
+            2,
+            [
+                "Error: Option '--images' requires an argument.",
+            ],
+            id="MAIN Function - Unavailable path"
+        ),
+        pytest.param(
+            "--images /etc/ --source redis://localhost:6379/0 --repair yeah apim",
+            2,
+            [
+                "Usage: syncstar [OPTIONS] COMMAND [ARGS]...",
+                "Try 'syncstar --help' for help.",
+                "Error: Invalid value for '-r' / '--repair': 'yeah' is not a valid boolean.",
+            ],
+            id="MAIN Function - Invalid repair"
+        ),
+        pytest.param(
+            "--repair",
+            2,
+            [
+                "Error: Option '--repair' requires an argument.",
+            ],
+            id="MAIN Function - Unavailable repair"
+        ),
+        pytest.param(
+            "--source",
+            2,
+            [
+                "Error: Option '--source' requires an argument.",
+            ],
+            id="MAIN Function - Unavailable exchange"
+        ),
     ]
 )
-def test_main_comd(mocker, cmdl, code, text):
+def test_comd_main(mocker, cmdl, code, text):
     # Initialization
     mocker.patch("syncstar.config.main_config", return_value=True)
     runner = CliRunner()

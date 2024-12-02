@@ -32,7 +32,7 @@ period = 2
 
 proc = 8
 
-compct = 8
+poll = 8
 
 images = ""
 
@@ -46,7 +46,10 @@ joblst = {}
 
 lockls = []
 
-code = "0000000000000000"
+secret = "secret"
+
+username = "root"
+password = "root"
 
 source = "redis://localhost:6379/0"
 broker_link = source

@@ -32,10 +32,27 @@ from syncstar.config import standard
 
 
 def show_time() -> str:
+    """
+    Returns the current local date and time in a human-readable string format
+
+    The format includes `time` in `HH:MM:SS` format, `date` in `MM/DD/YY` format and timezone
+    abbreviation. The time is displayed according to the system's default local timezone.
+
+    :return: Formatted current local date and time
+    """
     return datetime.now().astimezone().strftime("%X %x %Z")
 
 
 def retrieve_disk_size(device: str) -> int:
+    """
+    Retrieves the size of a disk device in bytes
+
+    Uses the `lsblk` command to obtain the size of the specified device in bytes. If the device
+    is not found or an error occurs, a warning is displayed, and the function returns 0.
+
+    :param device: Path to the device (e.g. "/dev/sda")
+    :return: Size of the device in bytes, or 0 if the device is not found
+    """
     try:
         return int(
             subprocess.check_output(  # noqa: S603
@@ -48,8 +65,19 @@ def retrieve_disk_size(device: str) -> int:
 
 def list_drives() -> dict:
     """
-    List storage devices according to the identification provided by the hexdigest of the SHA256
-    hash of their hardware serial numbers of the respective storage devices
+    Lists storage devices connected to the system.
+
+    This function identifies storage devices using the first 8 characters of the SHA256 hash
+    of their hardware serial numbers. Only devices connected via USB are included. The resulting
+    dictionary is also stored in `standard.dkdict`. Each device's details are stored in a
+    dictionary with the following keys:
+
+    - `node`: Device node (e.g., `/dev/sda`)
+    - `name`: A dictionary containing the vendor and model name of the device
+    - `iden`: Device identifier
+    - `size`: Size of the device in bytes, obtained using `retrieve_disk_size`
+
+    :return: Dictionary mapping device hashes to their details
     """
     iterdict = {}
     for indx in pyudev.Context().list_devices(subsystem="block", DEVTYPE="disk"):

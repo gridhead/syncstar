@@ -51,7 +51,7 @@ class MockProcess:
 
 class MockCompletionConfirmation:
     def __init__(self):
-        self.qant = [8 for _ in range(standard.compct)]
+        self.qant = [8 for _ in range(standard.poll)]
 
     def __bool__(self):
         return True
