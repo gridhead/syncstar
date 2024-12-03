@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Accordion, Card, CardBody, Container, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
+import packInfo from "../package.json";
 import ListItemDisk from "./comp/disk.jsx";
 import SignInWindow from "./comp/door.jsx";
 import BottomNavbar from "./comp/down.jsx";
@@ -86,6 +87,10 @@ function Main() {
     }, 1000);
     return () => clearInterval(intervalId);
   }, [dispatch]);
+
+  useEffect(() => {
+    document.title = `SyncStar v${packInfo.version}`;
+  }, []);
 
   return (
     <>
