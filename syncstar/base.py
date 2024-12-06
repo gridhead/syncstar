@@ -81,8 +81,8 @@ def list_drives() -> dict:
     """
     iterdict = {}
     for indx in pyudev.Context().list_devices(subsystem="block", DEVTYPE="disk"):
-        if isinstance(indx.get("ID_BUS", "Void"), str):
-            if "usb" in indx.get("ID_BUS", "Void"):
+        if isinstance(indx.get("ID_BUS"), str):
+            if "usb" in indx.get("ID_BUS"):
                 iterdict[
                     sha256(
                         indx.properties.get("ID_SERIAL_SHORT", "Void").encode()
