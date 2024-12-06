@@ -81,15 +81,17 @@ def list_drives() -> dict:
     """
     iterdict = {}
     for indx in pyudev.Context().list_devices(subsystem="block", DEVTYPE="disk"):
-        if isinstance(indx.get("ID_BUS"), str):
-            if "usb" in indx.get("ID_BUS"):
+        if isinstance(indx.get("ID_BUS", "Void"), str):
+            if "usb" in indx.get("ID_BUS", "Void"):
                 iterdict[
-                    sha256(indx.properties["ID_SERIAL_SHORT"].encode()).hexdigest()[0:8].upper()
+                    sha256(
+                        indx.properties.get("ID_SERIAL_SHORT", "Void").encode()
+                    ).hexdigest()[0:8].upper()
                 ] = {
                     "node": indx.device_node,
                     "name": {
-                        "vendor": indx.properties["ID_VENDOR"],
-                        "handle": indx.properties["ID_MODEL"],
+                        "vendor": indx.properties.get("ID_VENDOR", "Void"),
+                        "handle": indx.properties.get("ID_MODEL", "Void"),
                     },
                     "iden": indx.device_number,
                     "size": retrieve_disk_size(indx.device_node),
