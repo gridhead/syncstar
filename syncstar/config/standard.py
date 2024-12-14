@@ -55,6 +55,8 @@ source = "redis://localhost:6379/0"
 broker_link = source
 result_link = source
 
+fdlist = []
+
 # Variables used for the testing purposes
 
 plug = 0

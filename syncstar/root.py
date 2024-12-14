@@ -29,6 +29,7 @@ from flask import Blueprint, Response, abort, jsonify, render_template, request,
 from syncstar import base, task
 from syncstar.auth import checkpoint
 from syncstar.config import standard
+from syncstar.feed import create_result
 
 root = Blueprint("root", __name__)
 
@@ -94,6 +95,17 @@ def sync(diskindx: str, isosindx: str) -> dict | Response:
         abort(404, f"No such disk: {diskindx}")
 
 
+@root.route("/news", methods=["GET"])
+@checkpoint
+def news() -> dict:
+    """
+    Handles the `/news` endpoint to fetch all relevant feed and provide a response
+
+    :return: HTTP response
+    """
+    return create_result()
+
+
 @root.route("/read", methods=["GET"])
 @checkpoint
 def read() -> dict:
@@ -155,6 +167,7 @@ def read() -> dict:
     return {
         "time": base.show_time(),
         "file": standard.imdict,
+        "feed": standard.fdlist,
         "devs": diskdict,
         "jobs": joblst,
     }

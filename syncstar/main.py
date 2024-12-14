@@ -20,7 +20,6 @@ are not subject to the GNU Affero General Public License and may only be used
 or replicated with the express permission of Red Hat, Inc.
 """
 
-
 from click import IntRange, Path, group, option, version_option
 
 from syncstar import __versdata__, config, task, view
@@ -62,6 +61,7 @@ def meet_cell() -> None:
 @group(
     name="syncstar",
     context_settings={"show_default": True},
+    help="Starts the SyncStar service with the specified configuration",
 )
 @option(
     "-i",
@@ -116,6 +116,16 @@ def main(images: str = None, source: str = standard.source, repair: bool = False
     context_settings={"show_default": True},
 )
 @option(
+    "-f",
+    "--feed",
+    "feed",
+    type=str,
+    default=[],
+    required=False,
+    multiple=True,
+    help="Add the feed to read relevant recent information from."
+)
+@option(
     "-p",
     "--port",
     "port",
@@ -143,6 +153,7 @@ def main(images: str = None, source: str = standard.source, repair: bool = False
     help="Set the password for service authentication."
 )
 def apim(
+    feed: int = standard.fdlist,
     port: int = standard.port,
     username: str = standard.username,
     password: str = standard.password
@@ -159,7 +170,7 @@ def apim(
     :param password: Password for service authentication (defaults to `standard.password`)
     :return: None
     """
-    config.apim_config(port, username, password)
+    config.apim_config(feed, port, username, password)
     meet_apim()
     work()
 

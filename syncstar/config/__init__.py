@@ -30,12 +30,13 @@ from syncstar import view
 from syncstar.config import standard
 
 
-def apim_config(port: int, username: str, password: str) -> None:
+def apim_config(feed: list, port: int, username: str, password: str) -> None:
     """
     Keep the configuration variables served in the command for consumption
 
     :return:
     """
+    standard.fdlist = feed
     standard.port = port
     standard.username = username
     standard.password = password
