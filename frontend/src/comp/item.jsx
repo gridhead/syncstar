@@ -12,7 +12,7 @@ function ListItem({ name, subs, type, imej, activate, action, suit }) {
             <h5 className="mb-1 headelem" id="name-main-indx">
               {name}
             </h5>
-            <span className={`strdelem badge text-bg-${suit} rounded-pill monotext`}>{type}</span>
+            <span className={`badge text-bg-${suit} rounded-pill monotext`}>{type}</span>
           </div>
           {subs}
         </div>

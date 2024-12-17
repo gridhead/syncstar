@@ -10,7 +10,7 @@ function HandList() {
 
   return (
     <>
-      <h2 className="headelem">Available</h2>
+      <h2 className="headelem text-success">Available</h2>
       <ListGroup>
         {Object.keys(fileDict).length > 0 ? (
           Object.entries(fileDict).map(([key, value]) => (

@@ -6,7 +6,7 @@ function RepairArea() {
 
   return (
     <>
-      <h2 className="headelem">Diagnosis</h2>
+      <h2 className="headelem text-success">Diagnosis</h2>
       <ListGroup>
         <Accordion>
           <Accordion.Item eventKey={0}>

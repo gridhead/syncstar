@@ -20,7 +20,7 @@ function DeviceList() {
 
   return (
     <>
-      <h2 className="headelem">Pending</h2>
+      <h2 className="headelem text-success">Pending</h2>
       <ListGroup>
         {Object.keys(devsDict).length > 0 ? (
           Object.entries(devsDict).map(([key, value]) => (
