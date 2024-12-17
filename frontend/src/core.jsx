@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Col, Container, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 import packInfo from "../package.json";
@@ -6,7 +7,7 @@ import DeviceList from "./comp/devs.jsx";
 import RepairArea from "./comp/diag.jsx";
 import SignInWindow from "./comp/door.jsx";
 import BottomNavbar from "./comp/down.jsx";
-import FeedUnit from "./comp/feed.jsx";
+import FeedList from "./comp/feed.jsx";
 import SevereWindow from "./comp/free.jsx";
 import HandList from "./comp/hand.jsx";
 import Notify from "./comp/note.jsx";
@@ -77,11 +78,29 @@ function Main() {
   return (
     <>
       <MainNavbar />
-      <HandList />
-      <DeviceList />
-      <ProgressList />
-      <FeedUnit />
-      <RepairArea />
+      <Container>
+        <Row xs={1} md={2} className="g-4">
+          <Col>
+            <Row xs={1} className="g-4">
+              <Col>
+                <HandList />
+              </Col>
+              <Col>
+                <DeviceList />
+              </Col>
+              <Col>
+                <ProgressList />
+              </Col>
+              <Col>
+                <RepairArea />
+              </Col>
+            </Row>
+          </Col>
+          <Col>
+            <FeedList />
+          </Col>
+        </Row>
+      </Container>
       <SelectWindow show={pickerVisual} pick={devsPick} imejlist={fileDict} />
       <SignInWindow show={signinVisual} />
       <SevereWindow show={disconnected} />

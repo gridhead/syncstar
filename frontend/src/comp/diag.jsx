@@ -1,11 +1,11 @@
-import { Accordion, Container, ListGroup } from "react-bootstrap";
+import { Accordion, ListGroup } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
 function RepairArea() {
   const jsonData = useSelector((area) => area.area.jsonData);
 
   return (
-    <Container className="mt-4">
+    <>
       <h2 className="headelem">Diagnosis</h2>
       <ListGroup>
         <Accordion>
@@ -19,7 +19,7 @@ function RepairArea() {
           </Accordion.Item>
         </Accordion>
       </ListGroup>
-    </Container>
+    </>
   );
 }
 

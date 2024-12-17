@@ -1,4 +1,4 @@
-import { Card, CardBody, Container, ListGroup } from "react-bootstrap";
+import { Card, CardBody, ListGroup } from "react-bootstrap";
 import { useSelector } from "react-redux";
 
 import { logodict, mooddict } from "../features/dict.jsx";
@@ -10,28 +10,26 @@ function ProgressList() {
 
   return (
     <>
-      <Container className="mt-4">
-        <h2 className="headelem">Progress</h2>
-        <ListGroup>
-          {Object.keys(jobsDict).length > 0 ? (
-            Object.entries(jobsDict).map(([key, value]) => (
-              <ListItem
-                key={key}
-                name={value.isos}
-                subs={<ListItemTask mood={value.mood} loca={value.disk} time={value.time} rcrd={value.rcrd} />}
-                type={key}
-                imej={logodict[value.mood]}
-                action={false}
-                suit={mooddict[value.mood]}
-              />
-            ))
-          ) : (
-            <Card>
-              <CardBody className="strdelem">No running synchronizations detected</CardBody>
-            </Card>
-          )}
-        </ListGroup>
-      </Container>
+      <h2 className="headelem">Progress</h2>
+      <ListGroup>
+        {Object.keys(jobsDict).length > 0 ? (
+          Object.entries(jobsDict).map(([key, value]) => (
+            <ListItem
+              key={key}
+              name={value.isos}
+              subs={<ListItemTask mood={value.mood} loca={value.disk} time={value.time} rcrd={value.rcrd} />}
+              type={key}
+              imej={logodict[value.mood]}
+              action={false}
+              suit={mooddict[value.mood]}
+            />
+          ))
+        ) : (
+          <Card>
+            <CardBody className="strdelem">No running synchronizations detected</CardBody>
+          </Card>
+        )}
+      </ListGroup>
     </>
   );
 }

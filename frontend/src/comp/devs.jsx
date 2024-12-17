@@ -1,4 +1,4 @@
-import { Card, CardBody, Container, ListGroup } from "react-bootstrap";
+import { Card, CardBody, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 import compdict from "../features/icon.jsx";
@@ -20,29 +20,27 @@ function DeviceList() {
 
   return (
     <>
-      <Container className="mt-4">
-        <h2 className="headelem">Pending</h2>
-        <ListGroup>
-          {Object.keys(devsDict).length > 0 ? (
-            Object.entries(devsDict).map(([key, value]) => (
-              <ListItem
-                key={key}
-                name={`${value.name.vendor} ${value.name.handle}`}
-                subs={<ListItemDisk size={value.size} loca={value.node} />}
-                type={key}
-                imej={compdict["device"]}
-                activate={() => handleShow(key, value)}
-                action={true}
-                suit="secondary"
-              />
-            ))
-          ) : (
-            <Card>
-              <CardBody className="strdelem">No devices detected</CardBody>
-            </Card>
-          )}
-        </ListGroup>
-      </Container>
+      <h2 className="headelem">Pending</h2>
+      <ListGroup>
+        {Object.keys(devsDict).length > 0 ? (
+          Object.entries(devsDict).map(([key, value]) => (
+            <ListItem
+              key={key}
+              name={`${value.name.vendor} ${value.name.handle}`}
+              subs={<ListItemDisk size={value.size} loca={value.node} />}
+              type={key}
+              imej={compdict["device"]}
+              activate={() => handleShow(key, value)}
+              action={true}
+              suit="secondary"
+            />
+          ))
+        ) : (
+          <Card>
+            <CardBody className="strdelem">No devices detected</CardBody>
+          </Card>
+        )}
+      </ListGroup>
     </>
   );
 }
