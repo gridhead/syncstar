@@ -39,11 +39,11 @@ from syncstar.config import apim_config, standard
 )
 def test_comd_apim(_, mocker):
     # Foundation
-    backup_port, backup_username, backup_password = standard.port, standard.username, standard.password
-    port, username, password = 8484, urandom(8).hex().upper(), urandom(8).hex().upper()
+    backup_fdlist, backup_port, backup_username, backup_password = standard.fdlist, standard.port, standard.username, standard.password
+    fdlist, port, username, password = [], 8484, urandom(8).hex().upper(), urandom(8).hex().upper()
 
     # Initialization
-    apim_config(port, username, password)
+    apim_config(fdlist, port, username, password)
 
     # Confirmation
     assert port == standard.port
@@ -51,4 +51,4 @@ def test_comd_apim(_, mocker):
     assert password == standard.password
 
     # Teardown
-    standard.port, standard.username, standard.password = backup_port, backup_username, backup_password
+    standard.fdlist, standard.port, standard.username, standard.password = backup_fdlist, backup_port, backup_username, backup_password
