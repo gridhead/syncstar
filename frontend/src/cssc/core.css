@@ -98,6 +98,7 @@ or replicated with the express permission of Red Hat, Inc.
 
 body {
   font-family: "Inter", sans-serif;
+  box-sizing: border-box;
   padding-top: 75px;
   padding-bottom: 75px;
 }

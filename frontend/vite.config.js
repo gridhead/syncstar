@@ -6,6 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      "/news": {
+        target: "http://localhost:8080/news",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/news/, ""),
+      },
       "/read": {
         target: "http://localhost:8080/read",
         changeOrigin: true,
