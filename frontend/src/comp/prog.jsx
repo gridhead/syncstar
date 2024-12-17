@@ -10,7 +10,7 @@ function ProgressList() {
 
   return (
     <>
-      <h2 className="headelem">Progress</h2>
+      <h2 className="headelem text-success">Progress</h2>
       <ListGroup>
         {Object.keys(jobsDict).length > 0 ? (
           Object.entries(jobsDict).map(([key, value]) => (

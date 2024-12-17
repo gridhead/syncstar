@@ -26,10 +26,10 @@ function FeedList() {
 
   return (
     <>
-      <h2 className="headelem">Highlights</h2>
+      <h2 className="headelem text-success">Highlights</h2>
       <ListGroup>
         {Object.keys(feedData).length > 0 ? (
-          Object.entries(feedData).map(([item, data]) => <FeedUnit key={item} data={data} />)
+          Object.entries(feedData).map(([item, data]) => <FeedUnit key={item} data={data} link={item} />)
         ) : (
           <Card>
             <CardBody className="strdelem">No source detected</CardBody>

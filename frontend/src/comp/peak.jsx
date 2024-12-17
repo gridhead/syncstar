@@ -4,9 +4,9 @@ import packInfo from "../../package.json";
 
 function MainNavbar() {
   return (
-    <Navbar className="bg-success navbar navbar-expand-lg fixed-top navbar-dark">
+    <Navbar className="navbar navbar-expand-lg fixed-top" bg="body-secondary" data-bs-theme="light">
       <Container>
-        <Navbar.Brand href="#" className="headelem">
+        <Navbar.Brand href="#" className="headelem text-success">
           SyncStar
         </Navbar.Brand>
         <Navbar.Toggle />
