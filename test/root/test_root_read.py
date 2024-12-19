@@ -94,7 +94,7 @@ def test_read(client, mocker, mood):
                     "stop": period
                 },
                 "task": "ABCD1234",
-                "rcrd": 0
+                "rate": "0.00 B/s"
             }
         }
     )

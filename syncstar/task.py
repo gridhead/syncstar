@@ -69,11 +69,10 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
 
     qant = util.CompletionConfirmation()
     comd = ["dd", f"if={isosfile}", f"of={diskfile}", "status=progress"]
-    proc = subprocess.Popen(comd, stderr=subprocess.PIPE)  # noqa : S603
+    proc = subprocess.Popen(comd, stderr=subprocess.PIPE, text=True)  # noqa : S603
     iden = sha256(str(self.request.id).encode()).hexdigest()[0:8].upper()
-    strt = time()
-    curt = time()
-    done = 0
+    strt, curt = time(), time()
+    done, rate = 0, "0.00 B/s"
 
     warning(format_output(iden, curt-strt, "PENDING", f"Flashing '{isosfile}' to '{diskfile}'"))
 
@@ -83,40 +82,44 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
         curt = time()
 
         if diskindx in base.list_drives().keys():
-            text = proc.stderr.readline().decode()
+            text = proc.stderr.readline()
 
             if "records out" in text:
-                done = text.split(" ")[0].split("+")[0]
+                done = int(text.split(" ")[0].split("+")[0])
                 qant.push(done)
 
-                if bool(qant):
-                    success(format_output(iden, curt-strt, "SUCCESS", f"Long running task safely terminated after {standard.poll} checks"))  # noqa : E501
-                    self.update_state(
-                        state="SUCCESS",
-                        meta={
-                            "progress": done,
-                            "time": {
-                                "strt": strt,
-                                "stop": curt
-                            },
-                            "finished": True,
-                        }
-                    )
-                    proc.send_signal(signal.SIGTERM)
-                    raise Ignore()
+            if "bytes" and "copied" in text:
+                rate = text.split(",")[-1].strip()
 
-                general(format_output(iden, curt-strt, "WORKING", text.replace("\n", "")))
+            if bool(qant):
+                success(format_output(iden, curt-strt, "SUCCESS", f"Long running task safely terminated after {standard.poll} checks"))  # noqa : E501
                 self.update_state(
-                    state="WORKING",
+                    state="SUCCESS",
                     meta={
-                        "progress": done,
+                        "rate": rate,
                         "time": {
                             "strt": strt,
                             "stop": curt
                         },
-                        "finished": False,
+                        "finished": True,
                     }
                 )
+                proc.send_signal(signal.SIGTERM)
+                raise Ignore()
+
+            sanctified = text.replace("\n", "")
+            general(format_output(iden, curt-strt, "WORKING", f"{rate} {sanctified}"))
+            self.update_state(
+                state="WORKING",
+                meta={
+                    "rate": rate,
+                    "time": {
+                        "strt": strt,
+                        "stop": curt
+                    },
+                    "finished": False,
+                }
+            )
 
         else:
             failure(format_output(iden, curt-strt, "FAILURE", "Unsafe removal of storage device can cause hardware damage"))  # noqa : E501
@@ -125,12 +128,12 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
                 meta={
                     "exc_type": "Key",
                     "exc_message": traceback.format_exc().split("\n"),
-                    "progress": done,
+                    "rate": rate,
                     "time": {
                         "strt": strt,
                         "stop": curt
                     },
-                    "finished": False
+                    "finished": False,
                 }
             )
             proc.send_signal(signal.SIGTERM)
@@ -138,7 +141,7 @@ def wrap_diskdrop(self, diskindx: str, isosindx: str) -> dict:
 
     success(format_output(iden, curt-strt, "SUCCESS", "Please remove the storage device and attempt booting from it"))  # noqa : E501
     return {
-        "progress": done,
+        "rate": rate,
         "time": {
             "strt": strt,
             "stop": curt

@@ -67,32 +67,33 @@ def sync(diskindx: str, isosindx: str) -> dict | Response:
     :return: HTTP response
     """
     iterdict = base.list_drives()
-    if diskindx in iterdict:
-        if isosindx in standard.imdict:
-            if diskindx not in standard.lockls:
-                if standard.imdict[isosindx]["size"] < iterdict[diskindx]["size"]:
-                    iden = urandom(4).hex().upper()
-                    unit = task.wrap_diskdrop.apply_async(args=[diskindx, isosindx])
-                    standard.joblst[iden] = {
-                        "disk": diskindx,
-                        "isos": isosindx,
-                        "time": {
-                            "strt": time(),
-                            "stop": time(),
-                        },
-                        "task": unit.id,
-                        "rcrd": 0,
-                    }
-                    standard.lockls.append(diskindx)
-                    return {"location": unit.id}, 201
-                else:
-                    abort(422, "Insufficient capacity")
-            else:
-                abort(400, f"Disk locked: {diskindx}")
-        else:
-            abort(404, f"No such image: {isosindx}")
-    else:
+
+    if diskindx not in iterdict:
         abort(404, f"No such disk: {diskindx}")
+
+    if isosindx not in standard.imdict:
+        abort(404, f"No such image: {isosindx}")
+
+    if diskindx in standard.lockls:
+        abort(400, f"Disk locked: {diskindx}")
+
+    if standard.imdict[isosindx]["size"] >= iterdict[diskindx]["size"]:
+        abort(422, "Insufficient capacity")
+
+    iden = urandom(4).hex().upper()
+    unit = task.wrap_diskdrop.apply_async(args=[diskindx, isosindx])
+    standard.joblst[iden] = {
+        "disk": diskindx,
+        "isos": isosindx,
+        "time": {
+            "strt": time(),
+            "stop": time(),
+        },
+        "task": unit.id,
+        "rate": "0.00 B/s",
+    }
+    standard.lockls.append(diskindx)
+    return {"location": unit.id}, 201
 
 
 @root.route("/news", methods=["GET"])
@@ -136,22 +137,22 @@ def read() -> dict:
             # Conditions - PENDING
             joblst[indx]["time"] = time() - data["time"]["strt"]
             joblst[indx]["done"] = False
-            joblst[indx]["rcrd"] = 0
+            joblst[indx]["rate"] = "0.00 B/s"
             if data["disk"] in standard.lockls:
                 tounlock[data["disk"]] = False
         elif unit.state == "FAILURE":
             # Conditions - FAILURE
             joblst[indx]["time"] = data["time"]["stop"] - data["time"]["strt"]
             joblst[indx]["done"] = False
-            joblst[indx]["rcrd"] = data["rcrd"]
+            joblst[indx]["rate"] = data["rate"]
             if data["disk"] in standard.lockls:
                 tounlock[data["disk"]] = True
         else:
             # Conditions - SUCCESS and WORKING
             joblst[indx]["time"] = unit.info.get("time").get("stop", 0) - data["time"]["strt"]
             joblst[indx]["done"] = unit.info.get("finished", True)
-            joblst[indx]["rcrd"] = unit.info.get("progress", 0)
-            standard.joblst[indx]["rcrd"] = unit.info.get("progress", 0)
+            joblst[indx]["rate"] = unit.info.get("rate", "0.00 B/s")
+            standard.joblst[indx]["rate"] = unit.info.get("rate", "0.00 B/s")
             standard.joblst[indx]["time"]["stop"] = unit.info.get("time").get("stop", 0)
             if data["disk"] in standard.lockls:
                 if unit.state == "WORKING":

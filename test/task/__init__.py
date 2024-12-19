@@ -24,19 +24,27 @@ or replicated with the express permission of Red Hat, Inc.
 from syncstar.config import standard
 
 
-class MockStandardError:
+class MockStandardErrorRecord:
     def __init__(self):
         pass
 
     def readline(self):
-        return b"0 records out"
+        return "0+0 records out"
+
+
+class MockStandardErrorCopied:
+    def __init__(self):
+        pass
+
+    def readline(self):
+        return "0 bytes (0.00 GB, 0.00 B) copied, 0 s, 0.00 B/s"
 
 
 class MockProcess:
-    def __init__(self):
+    def __init__(self, side: str = "record"):
         self.border = 4
         self.indx = 0
-        self.stderr = MockStandardError()
+        self.stderr = MockStandardErrorRecord() if side == "record" else MockStandardErrorCopied()
 
     def send_signal(self, data):
         return True
