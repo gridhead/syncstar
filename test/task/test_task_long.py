@@ -31,20 +31,24 @@ from . import MockCompletionConfirmation, MockProcess, disklist_positive, imdict
 
 
 @pytest.mark.parametrize(
-    "_",
+    "output",
     [
         pytest.param(
-            None,
-            id="TASK Function - Long task complete"
-        )
+            "record",
+            id="TASK Function - Long task complete - Record output"
+        ),
+        pytest.param(
+            "copied",
+            id="TASK Function - Long task complete - Copied output"
+        ),
     ]
 )
-def test_task_long(caplog, mocker, _):
+def test_task_long(caplog, mocker, output):
     # Initialization
     mocker.patch("syncstar.config.standard.imdict", imdict)
     mocker.patch("syncstar.util.CompletionConfirmation", MockCompletionConfirmation)
     mocker.patch("celery.Task.update_state", return_value=mock_update_state)
-    mocker.patch("subprocess.Popen", return_value=MockProcess())
+    mocker.patch("subprocess.Popen", return_value=MockProcess(output))
     mocker.patch("syncstar.base.list_drives", disklist_positive)
 
     # Confirmation

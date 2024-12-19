@@ -32,7 +32,7 @@ class CompletionConfirmation:
         self.qant = [0 for _ in range(standard.poll)]
 
     def __bool__(self) -> bool:
-        return len(set(self.qant)) == 1
+        return self.qant[0] != 0 and len(set(self.qant)) == 1
 
     def push(self, item: int) -> None:
         self.qant.append(item)

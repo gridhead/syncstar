@@ -17,7 +17,7 @@ function ProgressList() {
             <ListItem
               key={key}
               name={value.isos}
-              subs={<ListItemTask mood={value.mood} loca={value.disk} time={value.time} rcrd={value.rcrd} />}
+              subs={<ListItemTask mood={value.mood} loca={value.disk} time={value.time} rate={value.rate} />}
               type={key}
               imej={logodict[value.mood]}
               action={false}
