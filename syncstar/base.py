@@ -43,6 +43,22 @@ def show_time() -> str:
     return datetime.now().astimezone().strftime("%X %x %Z")
 
 
+def show_duration(hh: int, mm: int, ss: int) -> str:
+    """
+    Returns the duration in a human-readable string format
+
+    :return: Formatted duration
+    """
+    text = ""
+    if hh > 0:
+        text += f"{hh} hour(s) "
+    if mm > 0:
+        text += f"{mm} minute(s) "
+    if ss > 0:
+        text += f"{ss} second(s)"
+    return text
+
+
 def retrieve_disk_size(device: str) -> int:
     """
     Retrieves the size of a disk device in bytes

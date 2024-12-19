@@ -136,21 +136,21 @@ def read() -> dict:
             # Conditions - PENDING
             joblst[indx]["time"] = time() - data["time"]["strt"]
             joblst[indx]["done"] = False
-            joblst[indx]["rcrd"] = 0
+            joblst[indx]["progress"] = 0
             if data["disk"] in standard.lockls:
                 tounlock[data["disk"]] = False
         elif unit.state == "FAILURE":
             # Conditions - FAILURE
             joblst[indx]["time"] = data["time"]["stop"] - data["time"]["strt"]
             joblst[indx]["done"] = False
-            joblst[indx]["rcrd"] = data["rcrd"]
+            joblst[indx]["progress"] = data["rcrd"]
             if data["disk"] in standard.lockls:
                 tounlock[data["disk"]] = True
         else:
             # Conditions - SUCCESS and WORKING
             joblst[indx]["time"] = unit.info.get("time").get("stop", 0) - data["time"]["strt"]
             joblst[indx]["done"] = unit.info.get("finished", True)
-            joblst[indx]["rcrd"] = unit.info.get("progress", 0)
+            joblst[indx]["progress"] = unit.info.get("progress", 0)
             standard.joblst[indx]["rcrd"] = unit.info.get("progress", 0)
             standard.joblst[indx]["time"]["stop"] = unit.info.get("time").get("stop", 0)
             if data["disk"] in standard.lockls:
