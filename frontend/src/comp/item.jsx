@@ -7,7 +7,7 @@ function ListItem({ name, subs, type, imej, activate, action, suit }) {
         <div style={{ aspectRatio: "1/1", height: "50px" }}>
           <img src={imej} className={`w-100 h-100 filter-${suit}`} />
         </div>
-        <div className="d-flex flex-column flex-grow-1">
+        <div className="d-flex flex-column flex-grow-1 text-truncate">
           <div className="d-flex justify-content-between align-items-start">
             <h5 className="mb-1 headelem" id="name-main-indx">
               {name}

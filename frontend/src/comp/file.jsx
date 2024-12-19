@@ -1,6 +1,6 @@
 function ListItemFile({ size, suit }) {
   return (
-    <small className="mb-0 secotext text-muted">
+    <small className="mb-0 secotext text-muted text-truncate">
       Requires at least{" "}
       <span style={{ fontWeight: "bold" }} className={`${suit}`}>
         {(size / (1024 * 1024 * 1024)).toFixed(2)} GiB
