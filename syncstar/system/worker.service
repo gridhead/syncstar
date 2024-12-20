@@ -12,6 +12,7 @@ ConditionPathExists=/etc/syncstar/images.yml
 User=root
 # As this service unit will write to storage devices, elevated privileges are required
 Group=root
+# Replace the following value with the images archive configuration file location
 Environment=SYNCSTAR_ISOSYAML=/etc/syncstar/images.yml
 # If the project was installed from COPR, use the following line
 # ExecStart=/usr/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false cell --proc 8 --poll 8
