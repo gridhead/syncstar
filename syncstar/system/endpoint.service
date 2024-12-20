@@ -12,11 +12,18 @@ ConditionPathExists=/etc/syncstar/images.yml
 User=username
 # Replace the following value with the username
 Group=username
+# Replace the following value with the images archive configuration file location
 Environment=SYNCSTAR_ISOSYAML=/etc/syncstar/images.yml
-# If the project was installed from COPR, use the following line
-# ExecStart=/usr/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false apim --port 8080 --period 2
-# If the project was installed from COPR, use the following line
-# ExecStart=/home/username/.local/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false apim --port 8080 --period 2
+# Replace the following values with the username and password for authentication
+Environment=SYNCSTAR_USERNAME=username
+Environment=SYNCSTAR_PASSWORD=password
+# Replace the following values with the information sources for fetching entries
+Environment=SYNCSTAR_FEED_FEDORA_ONE=https://fedoramagazine.org/feed
+Environment=SYNCSTAR_FEED_FEDORA_TWO=https://communityblog.fedoraproject.org/feed
+# If the project was installed from repositories, use the following line
+# ExecStart=/usr/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false apim --feed $SYNCSTAR_FEED_FEDORA_ONE --feed $SYNCSTAR_FEED_FEDORA_ONE --port 8080 --username $SYNCSTAR_USERNAME --password $SYNCSTAR_PASSWORD
+# If the project was installed from PyPI, use the following line
+# ExecStart=/home/username/.local/bin/syncstar --images $SYNCSTAR_ISOSYAML --source redis://localhost:6379/0 --repair false apim --feed $SYNCSTAR_FEED_FEDORA_ONE --feed $SYNCSTAR_FEED_FEDORA_ONE --port 8080 --username $SYNCSTAR_USERNAME --password $SYNCSTAR_PASSWORD
 
 [Install]
 WantedBy=multi-user.target
