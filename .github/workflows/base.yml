@@ -14,9 +14,10 @@ jobs:
         run: |
              python3 -m pip install --upgrade poetry tox
 
-      - name: Check the correctness of the project config
-        run: |
-             poetry check
+#     TEMPORARILY DISABLED UNTIL POETRY STOPS RETURNING WARNINGS WITH NON ZERO EXIT CODES
+#     - name: Check the correctness of the project config
+#       run: |
+#            poetry check
 
       - name: Check the quality of the code
         run: |
