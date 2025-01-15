@@ -1,5 +1,7 @@
 import { Accordion, Badge, ListGroup } from "react-bootstrap";
 
+import QRCodeOver from "./code.jsx";
+
 function FeedUnit({ data, link }) {
   const burl = new URL(link);
   const base = burl.origin;
@@ -33,11 +35,13 @@ function FeedUnit({ data, link }) {
                 </span>
               </Accordion.Header>
               <Accordion.Body>
-                <a className="secotext text-success" href={unit.link} target="_blank" rel="noopener noreferrer">
-                  {unit.date}
-                </a>
+                <QRCodeOver head={unit.head} link={unit.link}>
+                  <a className="secotext text-success" href={unit.link} target="_blank" rel="noopener noreferrer">
+                    {unit.date}
+                  </a>
+                </QRCodeOver>
                 <br />
-                {unit.summ}
+                <span>{unit.summ}</span>
               </Accordion.Body>
             </Accordion.Item>
           ))
