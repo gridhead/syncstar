@@ -1,3 +1,4 @@
+// Operating System Icons
 import Archlx from "../assets/icon/1c48b14227a7e1091e740a3df7174bbddc453917cc287e503315ae6f1a845b0e.svg";
 import Kodimc from "../assets/icon/2ad165fc2120ad592bdbf852fe501ddaad6e2b944bff7d945d127b4e73a1699e.svg";
 import Ubuntu from "../assets/icon/3b7f5a60779863249634141d594548e56208889dc32b783142cbf3999e8adbda.svg";
@@ -13,6 +14,7 @@ import Redhat from "../assets/icon/170d2033c590e5e7b694ea5f7ae047fbf561768c78e30
 import Mnjaro from "../assets/icon/246f21c66f18e728feb8e9ad0dd8f35b116656ddb519819e13798a579bdbc59a.svg";
 import Fiasco from "../assets/icon/385b4204a81711016e4360def38f14b317bf0341a9b85a96de6e94cbf9be4c85.svg";
 import Canvas from "../assets/icon/a50f6a86f40bae105722f35209e70ef6e37ef1a11c6e98a39c70114c7f3b07c0.svg";
+import Rocky  from "../assets/icon/aef9c309f186ddbed4c59e80ccd845c10cf16450e9ff7473c1d4d828b7363e2b.svg";
 import Lesson from "../assets/icon/c2bbab4baf8aebcb3c054b9b6c28e2340a3b42064f72f126c49962affca34a56.svg";
 import Create from "../assets/icon/ca6ff012f78ea3989e5da13395102c7289cbe6858c0a7eea6cf82970b017ab24.svg";
 import Verify from "../assets/icon/deef37d937f28061f6a8a453bc7660951b32a34c23d0975c71ada8b4ea399f52.svg";
@@ -22,28 +24,29 @@ import Debian from "../assets/icon/f981aab3aaa188a7d289009af14600152c1ea28e9ad75
 import Common from "../assets/icon/fdf8c530789c78a450d5fae444905349afad1c6c257fb40b6a80de3fa7565c03.svg";
 
 const compdict = {
-  gdroid: Gdroid,
   archlx: Archlx,
+  bounce: Bounce,
+  canvas: Canvas,
   centos: Centos,
-  debian: Debian,
-  fedora: Fedora,
-  kodimc: Kodimc,
-  lxmint: Lxmint,
   common: Common,
-  mnjaro: Mnjaro,
-  redhat: Redhat,
-  opsuse: Opsuse,
-  ubuntu: Ubuntu,
+  create: Create,
+  debian: Debian,
+  detail: Detail,
   device: Device,
-  result: Result,
-  verify: Verify,
+  fedora: Fedora,
   fiasco: Fiasco,
   finish: Finish,
-  create: Create,
-  canvas: Canvas,
-  detail: Detail,
+  gdroid: Gdroid,
+  kodimc: Kodimc,
   lesson: Lesson,
-  bounce: Bounce,
+  lxmint: Lxmint,
+  mnjaro: Mnjaro,
+  opsuse: Opsuse,
+  redhat: Redhat,
+  result: Result,
+  rocky:  Rocky,
+  ubuntu: Ubuntu,
+  verify: Verify,
 };
 
 export default compdict;
